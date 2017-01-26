@@ -39,10 +39,18 @@ class Form extends OnePiece
 	private function _InitSession()
 	{
 		if(!isset($this->_sesssion)){
+			//	...
 			if(!$form_name = ifset($this->_form['name'])){
 				Notice::Set("Does not set form name.");
 				return;
 			}
+
+			//	...
+			if(!session_id()){
+				session_start();
+			}
+
+			//	...
 			$this->_sesssion = &$_SESSION[OnePiece::_NAME_SPACE_]['unit']['form'][$form_name];
 		}
 	}
