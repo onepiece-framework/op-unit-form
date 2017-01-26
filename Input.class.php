@@ -41,7 +41,7 @@ class Input extends OnePiece
 		$value = ifset($input['value']);
 
 		//	...
-		if( $session !== null ){
+		if( $session !== null and $type !== 'button' ){
 			$value = $session;
 		}
 

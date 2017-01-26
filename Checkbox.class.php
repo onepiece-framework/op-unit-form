@@ -44,7 +44,10 @@ class Checkbox extends OnePiece
 		}
 
 		//	...
-		$i = 0;
+		printf('<input type="hidden" name="%s[0]" value="" />', $name);
+
+		//	...
+		$i = 1;
 		foreach($input['values'] as $values){
 			if( is_array($values) ){
 				$value = ifset($values['value']);
