@@ -189,7 +189,7 @@ class Form
 
 		//	...
 		foreach($this->_form['input'] as $input){
-			$name = $input['name'];
+			$name = ifset($input['name']);
 			if( isset($request[$name]) ){
 				$this->_sesssion[$name] = Escape($request[$name]);
 			}
