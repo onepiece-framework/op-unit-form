@@ -23,63 +23,85 @@ class Test
 	//	...
 	use OP_CORE;
 
-	/**
-	 * Configuration test.
+	/** Configuration test.
 	 *
-	 * @param array $form
+	 * @param  array $form
+	 * @return boolean
 	 */
 	static function Config($form)
 	{
-		//	...
-		self::Form($form);
+		$io = null;
 
 		//	...
-		foreach($form['input'] as $name => $input){
+		$io = self::Form($form) ? $io: false;
+
+		//	...
+		foreach( $form['input'] as $name => $input ){
+			//	...
 			if( gettype($name) !== 'string' ){
-				Html::P("Has not been set input name.\n Ex. \$form[input][input-name] = \$input;");
+				Html::P("\$form[input] is array. (not assoc)\n Ex. \$form[input][input-name] = \$input;");
 			}
-			self::Input($input);
+
+			//	...
+			$io = self::Input($input) ? $io: false;
 		}
+
+		//	...
+		return $io;
 	}
 
-	/**
-	 * Form configuration test.
+	/** Form configuration test.
 	 *
-	 * @param array $form
+	 * @param  array $form
+	 * @return boolean
 	 */
 	static function Form($form)
 	{
+		$io = true;
+
 		//	...
 		if(!$name = ifset($form['name'])){
-			Html::P("Form has not been set name attribute.");
+			Html::P("\$form has not been set name attribute.");
 			return;
 		}
 
 		//	...
 		foreach(['action','method'] as $key){
 			if(!isset($form[$key])){
-				Html::P("Form config has not been set $key attribute. ($name)");
+				Html::P("\$form has not been set $key attribute. ($name)");
+				$io = false;
 			}
 		}
+
+		//	...
+		return $io;
 	}
 
-	/**
-	 * Input configuration test.
+	/** Input configuration test.
+	 *
+	 * @param  array $input
+	 * @return boolean
 	 */
 	static function Input($input)
 	{
+		$io = true;
+
 		//	...
 		if(!$name = ifset($input['name'])){
 			Html::P("Has not been set name attribute.");
 			D($input);
-			return;
+			return false;
 		}
 
 		//	...
 		foreach(['type'] as $key){
 			if(!isset($input[$key])){
 				Html::P("Input config has not been set $key attribute. ($name)");
+				$io = false;
 			}
 		}
+
+		//	...
+		return $io;
 	}
 }

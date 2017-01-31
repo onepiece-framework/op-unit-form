@@ -57,8 +57,7 @@ class Form
 		}
 	}
 
-	/**
-	 * Print button tag.
+	/** Print button tag.
 	 *
 	 * @param string $name
 	 */
@@ -68,8 +67,7 @@ class Form
 		Input::Build($input);
 	}
 
-	/**
-	 * Print input tag as type of checkbox.
+	/** Print input tag as type of checkbox.
 	 *
 	 * @param string $name
 	 */
@@ -79,16 +77,14 @@ class Form
 		Checkbox::Build($input, ifset($this->_sesssion[$input['name']]));
 	}
 
-	/**
-	 * Print form tag. (close)
+	/** Print form tag. (close)
 	 */
 	function Finish()
 	{
 		print "</form>";
 	}
 
-	/**
-	 * Get form configuration.
+	/** Get form configuration.
 	 *
 	 * @param string $form
 	 */
@@ -104,8 +100,7 @@ class Form
 		return $attr ? ifset($this->_form[$attr]) : $this->_form;
 	}
 
-	/**
-	 * Print input tag.
+	/** Print input tag.
 	 *
 	 * @param string $name
 	 */
@@ -124,8 +119,7 @@ class Form
 		}
 	}
 
-	/**
-	 * Print label name.
+	/** Print label name.
 	 *
 	 * @param string $name
 	 */
@@ -150,6 +144,10 @@ class Form
 		}
 	}
 
+	/** Configuration is load at file path.
+	 *
+	 * @param string $file_path
+	 */
 	function Load($file_path)
 	{
 		try {
@@ -168,8 +166,7 @@ class Form
 		}
 	}
 
-	/**
-	 * Print input tag as type of radio.
+	/** Print input tag as type of radio.
 	 *
 	 * @param string $name
 	 */
@@ -179,8 +176,9 @@ class Form
 		Radio::Build($input, ifset($this->_sesssion[$input['name']]));
 	}
 
-	/**
-	 * Save submit value to session.
+	/** Save submit value to session.
+	 *
+	 * @param array $name
 	 */
 	function Save($request)
 	{
@@ -196,8 +194,7 @@ class Form
 		}
 	}
 
-	/**
-	 * Set form configuration.
+	/** Set form configuration.
 	 *
 	 * @param string $form
 	 */
@@ -217,8 +214,7 @@ class Form
 		$this->_form['escaped'] = true;
 	}
 
-	/**
-	 * Print select tag.
+	/** Print select tag.
 	 *
 	 * @param string $name
 	 */
@@ -228,8 +224,8 @@ class Form
 		Select::Build($input, ifset($this->_sesssion[$input['name']]));
 	}
 
-	/**
-	 * Print form tag. (open)
+	/** Print form tag. (open)
+	 *
 	 */
 	function Start()
 	{
@@ -243,8 +239,7 @@ class Form
 		printf('<input type="hidden" name="form_name" value="%s" />', $this->_form['name']);
 	}
 
-	/**
-	 * Print input tag as type of submit.
+	/** Print input tag as type of submit.
 	 *
 	 * @param string $name
 	 */
@@ -254,8 +249,8 @@ class Form
 		Input::Build($input);
 	}
 
-	/**
-	 * Configuration's test.
+	/** Configuration's test.
+	 *
 	 */
 	function Test()
 	{
@@ -264,8 +259,7 @@ class Form
 		}
 	}
 
-	/**
-	 * Print textarea tag.
+	/** Print textarea tag.
 	 *
 	 * @param string $name
 	 */
