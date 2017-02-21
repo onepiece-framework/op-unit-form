@@ -18,22 +18,24 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class Form extends OnePiece
+class Form
 {
-	/**
-	 * Form configuration.
+	//	...
+	use OP_CORE;
+
+	/** Form configuration.
 	 *
 	 * @var array
 	 */
-	private $_form;
+	private $_form = [];
 
-	/**
+	/** Session
 	 *
 	 * @var unknown
 	 */
 	private $_sesssion;
 
-	/**
+	/** Init session
 	 *
 	 */
 	private function _InitSession()
@@ -51,29 +53,8 @@ class Form extends OnePiece
 			}
 
 			//	...
-			$this->_sesssion = &$_SESSION[OnePiece::_NAME_SPACE_]['unit']['form'][$form_name];
+			$this->_sesssion = &$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$form_name];
 		}
-	}
-
-	/**
-	 * Add form configuration.
-	 *
-	 * @param string $form
-	 */
-	function AddForm($form)
-	{
-		if( $this->_form ){
-			Notice::Set("Already initialized. {$this->_form['name']}");
-			return;
-		}
-
-		if( empty($form['name']) ){
-			Notice::Set('Form name is empty. $form["name"] = "form-name";');
-		}
-
-		//	...
-		$this->_form = Escape($form);
-		$this->_form['escaped'] = true;
 	}
 
 	/**
@@ -104,6 +85,23 @@ class Form extends OnePiece
 	function Finish()
 	{
 		print "</form>";
+	}
+
+	/**
+	 * Get form configuration.
+	 *
+	 * @param string $form
+	 */
+	function GetForm($attr=null)
+	{
+		//	...
+		if( empty($this->_form) ){
+			Notice::Set("Configuration has not been setting.");
+			return;
+		}
+
+		//	...
+		return $attr ? ifset($this->_form[$attr]) : $this->_form;
 	}
 
 	/**
@@ -152,6 +150,24 @@ class Form extends OnePiece
 		}
 	}
 
+	function Load($file_path)
+	{
+		try {
+			if( file_exists($file_path) ){
+				include($file_path);
+				if( isset($form) ){
+					$this->SetForm($form);
+				}else{
+					Notice::Set("Does not exists \$form variable.");
+				}
+			}else{
+				Notice::Set("Does not exists this file. ($file_path)");
+			}
+		} catch ( Throwable $e ) {
+			Notice::Set( $e->getMessage() );
+		}
+	}
+
 	/**
 	 * Print input tag as type of radio.
 	 *
@@ -178,6 +194,27 @@ class Form extends OnePiece
 				$this->_sesssion[$name] = Escape($request[$name]);
 			}
 		}
+	}
+
+	/**
+	 * Set form configuration.
+	 *
+	 * @param string $form
+	 */
+	function SetForm($form)
+	{
+		if( $this->_form ){
+			Notice::Set("Already initialized. {$this->_form['name']}");
+			return;
+		}
+
+		if( empty($form['name']) ){
+			Notice::Set('Form name is empty. $form["name"] = "form-name";');
+		}
+
+		//	...
+		$this->_form = Escape($form);
+		$this->_form['escaped'] = true;
 	}
 
 	/**
@@ -222,7 +259,9 @@ class Form extends OnePiece
 	 */
 	function Test()
 	{
-		Test::Config($this->_form);
+		if( Env::isAdmin() ){
+			Test::Config($this->_form);
+		}
 	}
 
 	/**

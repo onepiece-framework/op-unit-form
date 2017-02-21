@@ -9,8 +9,7 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 
-/**
- * Select
+/** Select
  *
  * @created   2017-01-25
  * @version   1.0
@@ -18,10 +17,12 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class Select extends OnePiece
+class Select
 {
-	/**
-	 * Build select tag.
+	//	trait
+	use OP_CORE;
+
+	/** Build select tag.
 	 *
 	 * @param array $input
 	 */
@@ -51,6 +52,36 @@ class Select extends OnePiece
 
 			//	...
 			$options .= sprintf('<option value="%s" %s>%s</option>', $value, $selected, $label);
+		}
+	}
+}
+
+/** Option
+ *
+ * @created   2017-01-25
+ * @version   1.0
+ * @package   unit-form
+ * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
+ * @copyright Tomoaki Nagahara All right reserved.
+ */
+class Option
+{
+	//	...
+	use OP_CORE;
+
+	/**
+	 * Build option tag.
+	 *
+	 * @param array $input
+	 */
+	static function Build($option)
+	{
+		if( is_array($option) ){
+			$value = ifset($option['value']);
+			$label = ifset($option['label'], $value);
+		}else if( is_string($option) or is_numeric($option) ){
+			$value = $option;
+			$label = $value;
 		}
 
 		//	...

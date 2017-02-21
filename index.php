@@ -9,6 +9,7 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 spl_autoload_register(function ($name){
+	$name = ucfirst($name);
 	$path = __DIR__."/{$name}.class.php";
 	if( file_exists($path) ){
 		include($path);

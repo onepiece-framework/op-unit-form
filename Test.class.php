@@ -18,8 +18,11 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class Test extends OnePiece
+class Test
 {
+	//	...
+	use OP_CORE;
+
 	/**
 	 * Configuration test.
 	 *
@@ -31,7 +34,10 @@ class Test extends OnePiece
 		self::Form($form);
 
 		//	...
-		foreach($form['input'] as $input){
+		foreach($form['input'] as $name => $input){
+			if( gettype($name) !== 'string' ){
+				Html::P("Has not been set input name.\n Ex. \$form[input][input-name] = \$input;");
+			}
 			self::Input($input);
 		}
 	}
@@ -45,14 +51,14 @@ class Test extends OnePiece
 	{
 		//	...
 		if(!$name = ifset($form['name'])){
-			D("Form has not been set name attribute.");
+			Html::P("Form has not been set name attribute.");
 			return;
 		}
 
 		//	...
 		foreach(['action','method'] as $key){
 			if(!isset($form[$key])){
-				D("Form config has not been set $key attribute. ($name)");
+				Html::P("Form config has not been set $key attribute. ($name)");
 			}
 		}
 	}
@@ -64,15 +70,15 @@ class Test extends OnePiece
 	{
 		//	...
 		if(!$name = ifset($input['name'])){
-			D("Has not been set name attribute.");
+			Html::P("Has not been set name attribute.");
 			D($input);
 			return;
 		}
 
 		//	...
-		foreach(['type','value','label'] as $key){
+		foreach(['type'] as $key){
 			if(!isset($input[$key])){
-				D("Input config has not been set $key attribute. ($name)");
+				Html::P("Input config has not been set $key attribute. ($name)");
 			}
 		}
 	}

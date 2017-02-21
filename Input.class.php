@@ -18,8 +18,11 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class Input extends OnePiece
+class Input
 {
+	//	...
+	use OP_CORE;
+
 	/**
 	 * Build input tag.
 	 *

@@ -18,8 +18,11 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class Checkbox extends OnePiece
+class Checkbox
 {
+	//	...
+	use OP_CORE;
+
 	/**
 	 * Build input tag as type of checkbox.
 	 *

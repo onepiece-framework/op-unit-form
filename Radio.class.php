@@ -18,8 +18,11 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class Radio extends OnePiece
+class Radio
 {
+	//	...
+	use OP_CORE;
+
 	/**
 	 * Build input tag as type of radio.
 	 *
