@@ -29,7 +29,7 @@ class Select
 	static function Build($input, $session)
 	{
 		//	...
-		foreach(['type','name','class','style','value','onchange'] as $key){
+		foreach(['type','name','class','style','value'] as $key){
 			if( $val = ifset($input[$key]) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}

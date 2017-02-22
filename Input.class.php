@@ -32,7 +32,7 @@ class Input
 	{
 		//	...
 		$attr = [];
-		foreach(['class','style','onclick','onchange'] as $key){
+		foreach(['class','style'] as $key){
 			if( $val = Escape(ifset($input[$key])) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}

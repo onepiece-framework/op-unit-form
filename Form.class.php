@@ -42,19 +42,25 @@ class Form
 	{
 		if(!isset($this->_sesssion)){
 			//	...
-			if(!$form_name = ifset($this->_form['name'])){
-				Notice::Set("Does not set form name.");
-				return;
-			}
-
-			//	...
 			if(!session_id()){
 				session_start();
 			}
 
 			//	...
-			$this->_sesssion = &$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$form_name];
+			$name = $this->_form['name'];
+			$u8s  = $this->_form['u8s'];
+
+			//	...
+			$this->_sesssion = &$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name][$u8s];
 		}
+	}
+
+	/** Uniqueness
+	 *
+	 */
+	private function _Uniqueness()
+	{
+		return ifset($_REQUEST['u8s'] ,Hash1(microtime()));
 	}
 
 	/** Print button tag.
@@ -104,6 +110,9 @@ class Form
 			//	...
 			$this->_form = Escape($form);
 			$this->_form['escaped'] = true;
+			if(!isset($this->_form['u8s'])){
+				$this->_form['u8s'] = $this->_Uniqueness();
+			}
 		}else{
 			return $this->_form;
 		}
@@ -191,7 +200,9 @@ class Form
 	function Save($request)
 	{
 		//	...
-		$this->_InitSession();
+		if(!isset($this->_sesssion)){
+			$this->_InitSession();
+		}
 
 		//	...
 		foreach($this->_form['input'] as $input){
@@ -223,8 +234,11 @@ class Form
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
 		}
+
+		//	...
 		printf('<form %s>', join(' ', $attr));
 		printf('<input type="hidden" name="form_name" value="%s" />', $this->_form['name']);
+		printf('<input type="hidden" name="u8s" value="%s" />',       $this->_form['u8s']);
 	}
 
 	/** Print input tag as type of submit.
@@ -255,5 +269,26 @@ class Form
 	{
 		$input = $this->_form['input'][$name];
 		self::Input($name);
+	}
+
+	/** Get/Set value of input.
+	 *
+	 * @param string $name
+	 * @param string $value Set or Overwrite value.
+	 */
+	function Value($name, $value=null)
+	{
+		//	...
+		if(!isset($this->_sesssion)){
+			$this->_InitSession();
+		}
+
+		//	...
+		if( $value ){
+			$this->_sesssion[$name] = Escape($value);
+		}
+
+		//	...
+		return ifset($this->_sesssion[$name]);
 	}
 }
