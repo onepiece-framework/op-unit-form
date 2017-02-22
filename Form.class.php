@@ -271,6 +271,24 @@ class Form
 		self::Input($name);
 	}
 
+	/** Vaildate
+	 *
+	 * @return array $errors
+	 */
+	function Validate()
+	{
+		//	...
+		$errors = [];
+
+		//	...
+		if( Unit::Load('validate') ){
+			$this->Save( Validate::Sanitize($this->_form, Http::Request(), $errors) );
+		}
+
+		//	...
+		return $errors;
+	}
+
 	/** Get/Set value of input.
 	 *
 	 * @param string $name
