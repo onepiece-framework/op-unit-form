@@ -57,9 +57,9 @@ class Input
 
 		//	...
 		if( $type === 'textarea' or $type === 'button' ){
-			printf('<%s name="%s" %s>%s</%s>', $type, $name, join(' ', $attr), $value, $type);
+			return sprintf('<%s name="%s" %s>%s</%s>', $type, $name, join(' ', $attr), $value, $type);
 		}else{
-			printf('<input type="%s" name="%s" value="%s" %s />', $type, $name, $value, join(' ', $attr));
+			return sprintf('<input type="%s" name="%s" value="%s" %s />', $type, $name, $value, join(' ', $attr));
 		}
 	}
 }

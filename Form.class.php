@@ -84,20 +84,29 @@ class Form
 		print "</form>";
 	}
 
-	/** Get form configuration.
+	/** Get/Set form configuration.
 	 *
 	 * @param string $form
 	 */
-	function GetForm($attr=null)
+	function Config($form=null)
 	{
-		//	...
-		if( empty($this->_form) ){
-			Notice::Set("Configuration has not been setting.");
-			return;
-		}
+		if( $form ){
+			if( $this->_form ){
+				Notice::Set("Already initialized. {$this->_form['name']}");
+				return;
+			}
 
-		//	...
-		return $attr ? ifset($this->_form[$attr]) : $this->_form;
+			if( empty($form['name']) ){
+				Notice::Set('Form name is empty. $form["name"] = "form-name";');
+				return;
+			}
+
+			//	...
+			$this->_form = Escape($form);
+			$this->_form['escaped'] = true;
+		}else{
+			return $this->_form;
+		}
 	}
 
 	/** Print input tag.
@@ -109,10 +118,10 @@ class Form
 		if( $input = $this->_form['input'][$name] ){
 			switch( $type = ucfirst(ifset($input['type'])) ){
 				case 'Select':
-					$type::Build($input, ifset($this->_sesssion[$input['name']]));
+					return $type::Build($input, ifset($this->_sesssion[$input['name']]));
 					break;
 				default:
-					Input::Build($input, ifset($this->_sesssion[$input['name']]));
+					return Input::Build($input, ifset($this->_sesssion[$input['name']]));
 			}
 		}else{
 			Notice::Set("Has not been set. ($name)");
@@ -127,8 +136,7 @@ class Form
 	{
 		//	...
 		if( $label = ifset($this->_form['input'][$name]['label']) ){
-			print $label;
-			return;
+			return $label;
 		}
 
 		//	...
@@ -154,7 +162,7 @@ class Form
 			if( file_exists($file_path) ){
 				include($file_path);
 				if( isset($form) ){
-					$this->SetForm($form);
+					$this->Config($form);
 				}else{
 					Notice::Set("Does not exists \$form variable.");
 				}
@@ -162,7 +170,7 @@ class Form
 				Notice::Set("Does not exists this file. ($file_path)");
 			}
 		} catch ( Throwable $e ) {
-			Notice::Set( $e->getMessage() );
+			Notice::Set($e->getMessage());
 		}
 	}
 
@@ -192,26 +200,6 @@ class Form
 				$this->_sesssion[$name] = Escape($request[$name]);
 			}
 		}
-	}
-
-	/** Set form configuration.
-	 *
-	 * @param string $form
-	 */
-	function SetForm($form)
-	{
-		if( $this->_form ){
-			Notice::Set("Already initialized. {$this->_form['name']}");
-			return;
-		}
-
-		if( empty($form['name']) ){
-			Notice::Set('Form name is empty. $form["name"] = "form-name";');
-		}
-
-		//	...
-		$this->_form = Escape($form);
-		$this->_form['escaped'] = true;
 	}
 
 	/** Print select tag.
