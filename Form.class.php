@@ -124,7 +124,7 @@ class Form
 	 */
 	function Input($name)
 	{
-		if( $input = $this->_form['input'][$name] ){
+		if( $input = ifset($this->_form['input'][$name]) ){
 			switch( $type = ucfirst(ifset($input['type'])) ){
 				case 'Select':
 					return $type::Build($input, ifset($this->_sesssion[$input['name']]));
@@ -201,7 +201,8 @@ class Form
 	{
 		//	...
 		if(!isset($this->_sesssion)){
-			$this->_InitSession();
+		//	$this->_InitSession();
+			return;
 		}
 
 		//	...
@@ -281,8 +282,16 @@ class Form
 		$errors = [];
 
 		//	...
+		$request = Http::Request();
+
+		//	...
+		if(!isset($request['u8s']) ){
+			return;
+		}
+
+		//	...
 		if( Unit::Load('validate') ){
-			$this->Save( Validate::Sanitize($this->_form, Http::Request(), $errors) );
+			$this->Save( Validate::Sanitize($this->_form, $request, $errors) );
 		}
 
 		//	...
@@ -302,7 +311,7 @@ class Form
 		}
 
 		//	...
-		if( $value ){
+		if( $value !== null ){
 			$this->_sesssion[$name] = Escape($value);
 		}
 
