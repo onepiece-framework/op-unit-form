@@ -201,8 +201,7 @@ class Form
 	{
 		//	...
 		if(!isset($this->_sesssion)){
-		//	$this->_InitSession();
-			return;
+			$this->_InitSession();
 		}
 
 		//	...

@@ -64,7 +64,11 @@ class Checkbox
 			}
 
 			//	...
-			$checked = $value === ifset($session[$i]) ? 'checked="checked"':'';
+			if( isset($session[$i]) and $value == $session[$i] ){
+				$checked = 'checked="checked"';
+			}else{
+				$checked = '';
+			}
 
 			//	...
 			printf('<label><input type="checkbox" name="%s[%s]" value="%s" %s %s />%s</label>', $name, $i, $value, join(' ', $attr), $checked, $label);
