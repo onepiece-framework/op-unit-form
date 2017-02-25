@@ -35,6 +35,15 @@ class Form
 	 */
 	private $_sesssion;
 
+	/** Destruct
+	 *
+	 */
+	function __destruct()
+	{
+		//	Save changed token value.
+		$this->_sesssion['token'] = $this->_form['token']['value'];
+	}
+
 	/** Init session
 	 *
 	 */
@@ -110,8 +119,16 @@ class Form
 			//	...
 			$this->_form = Escape($form);
 			$this->_form['escaped'] = true;
-			if(!isset($this->_form['u8s'])){
+
+			//	Uniqueness
+			if( ifset($this->_form['u8s'], true) ){
 				$this->_form['u8s'] = $this->_Uniqueness();
+			}
+
+			//	Token
+			if( ifset($this->_form['token'], true) ){
+				$this->_form['token']['name']  = ifset($this->_form['u8s'], 'token');
+				$this->_form['token']['value'] = Hash1(microtime());
 			}
 		}else{
 			return $this->_form;
@@ -239,6 +256,7 @@ class Form
 		printf('<form %s>', join(' ', $attr));
 		printf('<input type="hidden" name="form_name" value="%s" />', $this->_form['name']);
 		printf('<input type="hidden" name="u8s" value="%s" />',       $this->_form['u8s']);
+		printf('<input type="hidden" name="%s"  value="%s" />',       $this->_form['token']['name'], $this->_form['token']['value']);
 	}
 
 	/** Print input tag as type of submit.
@@ -269,6 +287,27 @@ class Form
 	{
 		$input = $this->_form['input'][$name];
 		self::Input($name);
+	}
+
+	function Token()
+	{
+		//	...
+		if(!isset($this->_sesssion)){
+			$this->_InitSession();
+		}
+
+		//	...
+		$request = Http::Request();
+
+		//	...
+		if( $token = ifset($request[$this->_form['token']['name']]) ){
+			if( $token === $this->_sesssion['token'] ){
+				return true;
+			}
+		}
+
+		//	...
+		return false;
 	}
 
 	/** Vaildate
