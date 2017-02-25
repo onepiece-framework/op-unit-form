@@ -31,6 +31,9 @@ class Checkbox
 	static function Build($input, $session=null)
 	{
 		//	...
+		$attr = [];
+
+		//	...
 		foreach(['class','style'] as $key){
 			if( $val = Escape(ifset($input[$key])) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
