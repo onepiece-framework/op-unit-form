@@ -92,13 +92,6 @@ class Form
 		Checkbox::Build($input, ifset($this->_sesssion[$input['name']]));
 	}
 
-	/** Print form tag. (close)
-	 */
-	function Finish()
-	{
-		print "</form>";
-	}
-
 	/** Get/Set form configuration.
 	 *
 	 * @param string $form
@@ -133,6 +126,13 @@ class Form
 		}else{
 			return $this->_form;
 		}
+	}
+
+	/** Print form tag. (close)
+	 */
+	function Finish()
+	{
+		print "</form>";
 	}
 
 	/** Print input tag.
@@ -225,7 +225,13 @@ class Form
 		foreach($this->_form['input'] as $input){
 			$name = ifset($input['name']);
 			if( isset($request[$name]) ){
+				//	Save to Session.
 				$this->_sesssion[$name] = Escape($request[$name]);
+
+				//	Save to Cookie.
+				if( ifset($input['cookie']) ){
+					Cookie::Set($name, $this->_sesssion[$name]);
+				}
 			}
 		}
 	}

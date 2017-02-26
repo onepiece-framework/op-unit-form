@@ -44,15 +44,30 @@ class Input
 		$value = ifset($input['value']);
 
 		//	...
-		if( $session !== null and $type !== 'button' ){
-			$value = $session;
+		if( $session ){
+			$saved = $session;
+		}else if( ifset($input['cookie']) ){
+			$saved = Cookie::Get($name);
+		}else{
+			$saved = null;
 		}
 
 		//	...
-		if( $type === 'checkbox' or $type === 'radio' ){
-			if( $value === $session ){
-				$attr[] = 'checked="checked"';
-			}
+		switch( $type ){
+			case 'submit':
+			case 'button':
+				break;
+
+			case 'radio':
+			case 'checkbox':
+				if( $value === $saved ){
+					$attr[] = 'checked="checked"';
+				}
+				break;
+
+			default:
+				$value = $saved;
+			break;
 		}
 
 		//	...

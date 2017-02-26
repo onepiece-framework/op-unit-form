@@ -50,25 +50,37 @@ class Checkbox
 		}
 
 		//	...
+		$cookie = Cookie::Get($name);
+
+		//	...
 		printf('<input type="hidden" name="%s[0]" value="" />', $name);
 
 		//	...
 		$i = 1;
 		foreach($input['values'] as $values){
+			//	...
+			$check = null;
+
+			//	...
 			if( is_array($values) ){
 				$value = ifset($values['value']);
 				$label = ifset($values['label'], $value);
+				$check = ifset($values['check']);
 			}else if( is_string($values) or is_numeric($values) ){
 				$value = $values;
 				$label = $values;
 			}
 
 			//	...
-			if( isset($session[$i]) and $value == $session[$i] ){
-				$checked = 'checked="checked"';
-			}else{
-				$checked = '';
+			if( $value == ifset($session[$i]) ){
+				$check = true;
+			}else
+			if( $value == ifset($cookie[$i]) ){
+				$check = true;
 			}
+
+			//	...
+			$checked = $check ? 'checked="checked"': '';
 
 			//	...
 			printf('<label><input type="checkbox" name="%s[%s]" value="%s" %s %s />%s</label>', $name, $i, $value, join(' ', $attr), $checked, $label);
