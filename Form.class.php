@@ -55,6 +55,16 @@ class Form
 				session_start();
 			}
 
+			//	Remove expired data
+			foreach( $_SESSION[_OP_NAME_SPACE_]['unit']['form'] as $name => $data ){
+				if( $data['expire'] < Time::Get() ){
+					unset($_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]);
+				}
+			}
+
+			//	Set expire of data.
+			$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]['expire'] = Time::Get() + $this->_form['expire'];
+
 			//	...
 			$name = $this->_form['name'];
 			$u8s  = $this->_form['u8s'];
@@ -123,6 +133,11 @@ class Form
 				$this->_form['token']['name']  = ifset($this->_form['u8s'], 'token');
 				$this->_form['token']['value'] = Hash1(microtime());
 			}
+
+			//	Expire time
+			if( empty($this->_form['expire']) ){
+				$this->_form['expire'] = 60 * 60 * 1;
+			}
 		}else{
 			return $this->_form;
 		}
@@ -161,8 +176,8 @@ class Form
 	function Label($name)
 	{
 		//	...
-		if( $label = ifset($this->_form['input'][$name]['label']) ){
-			return $label;
+		if( isset( $this->_form['input'][$name]['label']) ){
+			return $this->_form['input'][$name]['label'];
 		}
 
 		//	...
