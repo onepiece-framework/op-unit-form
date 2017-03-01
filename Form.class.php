@@ -56,18 +56,26 @@ class Form
 			}
 
 			//	Remove expired data
-			foreach( $_SESSION[_OP_NAME_SPACE_]['unit']['form'] as $name => $data ){
-				if( $data['expire'] < Time::Get() ){
-					unset($_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]);
+			foreach( ifset($_SESSION[_OP_NAME_SPACE_]['unit']['form'], []) as $name => $data ){
+				if( $expire = ifset($data['expire']) ){
+					if( $expire < Time::Get() ){
+						unset($_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]);
+					}
 				}
 			}
 
+			//	...
+			$name   = $this->_form['name'];
+			$u8s    = $this->_form['u8s'];
+			$expire = $this->_form['expire'];
+
 			//	Set expire of data.
-			$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]['expire'] = Time::Get() + $this->_form['expire'];
+			$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]['expire'] = Time::Get() + $expire;
 
 			//	...
-			$name = $this->_form['name'];
-			$u8s  = $this->_form['u8s'];
+			if( count($_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]) > 10 ){
+				unset($_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]);
+			}
 
 			//	...
 			$this->_sesssion = &$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name][$u8s];
@@ -160,7 +168,7 @@ class Form
 			switch( $type = ucfirst(ifset($input['type'])) ){
 				case 'Select':
 					return $type::Build($input, ifset($this->_sesssion[$input['name']]));
-					break;
+
 				default:
 					return Input::Build($input, ifset($this->_sesssion[$input['name']]));
 			}
