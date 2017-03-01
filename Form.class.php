@@ -130,7 +130,7 @@ class Form
 
 			//	Token
 			if( ifset($this->_form['token'], true) ){
-				$this->_form['token']['name']  = ifset($this->_form['u8s'], 'token');
+				$this->_form['token']['key']   = ifset($this->_form['u8s'], 'token');
 				$this->_form['token']['value'] = Hash1(microtime());
 			}
 
@@ -277,7 +277,7 @@ class Form
 		printf('<form %s>', join(' ', $attr));
 		printf('<input type="hidden" name="form_name" value="%s" />', $this->_form['name']);
 		printf('<input type="hidden" name="u8s" value="%s" />',       $this->_form['u8s']);
-		printf('<input type="hidden" name="%s"  value="%s" />',       $this->_form['token']['name'], $this->_form['token']['value']);
+		printf('<input type="hidden" name="%s"  value="%s" />',       $this->_form['token']['key'], $this->_form['token']['value']);
 	}
 
 	/** Print input tag as type of submit.
@@ -310,6 +310,10 @@ class Form
 		self::Input($name);
 	}
 
+	/** Token
+	 *
+	 * @return boolean
+	 */
 	function Token()
 	{
 		//	...
@@ -321,14 +325,25 @@ class Form
 		$request = Http::Request();
 
 		//	...
-		if( $token = ifset($request[$this->_form['token']['name']]) ){
-			if( $token === $this->_sesssion['token'] ){
-				return true;
-			}
+		$key = $this->_form['token']['key'];
+
+		//	...
+		if( empty($request[$key]) ){
+			return false;
 		}
 
 		//	...
-		return false;
+		if( empty($this->_sesssion['token']) ){
+			return false;
+		}
+
+		//	...
+		if( $this->_sesssion['token'] !== $request[$key] ){
+			return false;
+		}
+
+		//	...
+		return true;
 	}
 
 	/** Vaildate
