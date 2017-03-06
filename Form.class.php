@@ -90,26 +90,6 @@ class Form
 		return ifset($_REQUEST['u8s'] ,Hash1(microtime()));
 	}
 
-	/** Print button tag.
-	 *
-	 * @param string $name
-	 */
-	function Button($name)
-	{
-		$input = $this->_form['input'][$name];
-		Input::Build($input);
-	}
-
-	/** Print input tag as type of checkbox.
-	 *
-	 * @param string $name
-	 */
-	function Checkbox($name)
-	{
-		$input = $this->_form['input'][$name];
-		Checkbox::Build($input, ifset($this->_sesssion[$input['name']]));
-	}
-
 	/** Get/Set form configuration.
 	 *
 	 * @param string $form
@@ -151,56 +131,6 @@ class Form
 		}
 	}
 
-	/** Print form tag. (close)
-	 */
-	function Finish()
-	{
-		print "</form>";
-	}
-
-	/** Print input tag.
-	 *
-	 * @param string $name
-	 */
-	function Input($name)
-	{
-		if( $input = ifset($this->_form['input'][$name]) ){
-			switch( $type = ucfirst(ifset($input['type'])) ){
-				case 'Select':
-					return $type::Build($input, ifset($this->_sesssion[$input['name']]));
-
-				default:
-					return Input::Build($input, ifset($this->_sesssion[$input['name']]));
-			}
-		}else{
-			Notice::Set("Has not been set. ($name)");
-		}
-	}
-
-	/** Print label name.
-	 *
-	 * @param string $name
-	 */
-	function Label($name)
-	{
-		//	...
-		if( isset( $this->_form['input'][$name]['label']) ){
-			return $this->_form['input'][$name]['label'];
-		}
-
-		//	...
-		if( empty($this->_form['input'][$name]) ){
-			Notice::Set("Does not exists this name. ($name)");
-			return;
-		}
-
-		//	...
-		if( empty($this->_form['input'][$name]['label']) ){
-			Notice::Set("Has not been set label. ($name)");
-			return;
-		}
-	}
-
 	/** Configuration is load at file path.
 	 *
 	 * @param string $file_path
@@ -221,16 +151,6 @@ class Form
 		} catch ( Throwable $e ) {
 			Notice::Set($e->getMessage());
 		}
-	}
-
-	/** Print input tag as type of radio.
-	 *
-	 * @param string $name
-	 */
-	function Radio($name)
-	{
-		$input = $this->_form['input'][$name];
-		Radio::Build($input, ifset($this->_sesssion[$input['name']]));
 	}
 
 	/** Save submit value to session.
@@ -259,64 +179,6 @@ class Form
 		}
 	}
 
-	/** Print select tag.
-	 *
-	 * @param string $name
-	 */
-	function Select($name)
-	{
-		$input = $this->_form['input'][$name];
-		Select::Build($input, ifset($this->_sesssion[$input['name']]));
-	}
-
-	/** Print form tag. (open)
-	 *
-	 */
-	function Start()
-	{
-		$attr = [];
-		foreach(['action','method','name','class','style'] as $key){
-			if( $val = ifset($this->_form[$key]) ){
-				$attr[] = sprintf('%s="%s"', $key, $val);
-			}
-		}
-
-		//	...
-		printf('<form %s>', join(' ', $attr));
-		printf('<input type="hidden" name="form_name" value="%s" />', $this->_form['name']);
-		printf('<input type="hidden" name="u8s" value="%s" />',       $this->_form['u8s']);
-		printf('<input type="hidden" name="%s"  value="%s" />',       $this->_form['token']['key'], $this->_form['token']['value']);
-	}
-
-	/** Print input tag as type of submit.
-	 *
-	 * @param string $name
-	 */
-	function Submit($name)
-	{
-		$input = $this->_form['input'][$name];
-		Input::Build($input);
-	}
-
-	/** Configuration's test.
-	 *
-	 */
-	function Test()
-	{
-		if( Env::isAdmin() ){
-			Test::Config($this->_form);
-		}
-	}
-
-	/** Print textarea tag.
-	 *
-	 * @param string $name
-	 */
-	function Textarea($name)
-	{
-		$input = $this->_form['input'][$name];
-		self::Input($name);
-	}
 
 	/** Token
 	 *
@@ -354,30 +216,145 @@ class Form
 		return true;
 	}
 
-	/** Vaildate
+	/** Configuration's test.
 	 *
-	 * @return array $errors
 	 */
-	function Validate()
+	function Test()
+	{
+		if( Env::isAdmin() ){
+			Test::Config($this->_form);
+		}
+	}
+
+	/** Print form tag. (open)
+	 *
+	 */
+	function Start()
+	{
+		$attr = [];
+		foreach(['action','method','name','class','style'] as $key){
+			if( $val = ifset($this->_form[$key]) ){
+				$attr[] = sprintf('%s="%s"', $key, $val);
+			}
+		}
+
+		//	...
+		printf('<form %s>', join(' ', $attr));
+		printf('<input type="hidden" name="form_name" value="%s" />', $this->_form['name']);
+		printf('<input type="hidden" name="u8s" value="%s" />',       $this->_form['u8s']);
+		printf('<input type="hidden" name="%s"  value="%s" />',       $this->_form['token']['key'], $this->_form['token']['value']);
+	}
+
+	/** Print form tag. (close)
+	 */
+	function Finish()
+	{
+		print "</form>";
+	}
+
+	/** Print label name.
+	 *
+	 * @param string $name
+	 */
+	function Label($name)
 	{
 		//	...
-		$errors = [];
+		if( isset( $this->_form['input'][$name]['label']) ){
+			return $this->_form['input'][$name]['label'];
+		}
 
 		//	...
-		$request = Http::Request();
-
-		//	...
-		if(!isset($request['u8s']) ){
+		if( empty($this->_form['input'][$name]) ){
+			Notice::Set("Does not exists this name. ($name)");
 			return;
 		}
 
 		//	...
-		if( Unit::Load('validate') ){
-			$this->Save( Validate::Sanitize($this->_form, $request, $errors) );
+		if( empty($this->_form['input'][$name]['label']) ){
+			Notice::Set("Has not been set label. ($name)");
+			return;
 		}
+	}
 
-		//	...
-		return $errors;
+	/** Print input tag.
+	 *
+	 * @param  string $name
+	 * @return string
+	 */
+	function Input($name)
+	{
+		if( $input = ifset($this->_form['input'][$name]) ){
+			switch( $type = ucfirst(ifset($input['type'])) ){
+				case 'Select':
+				case 'Radio':
+					return $type::Build($input, ifset($this->_sesssion[$input['name']]));
+
+				default:
+					return Input::Build($input, ifset($this->_sesssion[$input['name']]));
+			}
+		}else{
+			Notice::Set("Has not been set. ($name)");
+		}
+	}
+
+	/** Print button tag.
+	 *
+	 * @param string $name
+	 */
+	function Button($name)
+	{
+		$input = $this->_form['input'][$name];
+		return Input::Build($input);
+	}
+
+	/** Print input tag as type of checkbox.
+	 *
+	 * @param string $name
+	 */
+	function Checkbox($name)
+	{
+		$input = $this->_form['input'][$name];
+		Checkbox::Build($input, ifset($this->_sesssion[$input['name']]));
+	}
+
+	/** Print input tag as type of radio.
+	 *
+	 * @param string $name
+	 */
+	function Radio($name)
+	{
+		$input = $this->_form['input'][$name];
+		Radio::Build($input, ifset($this->_sesssion[$input['name']]));
+	}
+
+	/** Print select tag.
+	 *
+	 * @param string $name
+	 */
+	function Select($name)
+	{
+		$input = $this->_form['input'][$name];
+		Select::Build($input, ifset($this->_sesssion[$input['name']]));
+	}
+
+	/** Print input tag as type of submit.
+	 *
+	 * @param string $name
+	 */
+	function Submit($name)
+	{
+		$input = $this->_form['input'][$name];
+		Input::Build($input);
+	}
+
+	/** Print textarea tag.
+	 *
+	 * @param string $name
+	 */
+	function Textarea($name)
+	{
+		$input = $this->_form['input'][$name];
+		self::Input($name);
 	}
 
 	/** Get/Set value of input.
