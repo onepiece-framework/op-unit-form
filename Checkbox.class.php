@@ -50,9 +50,6 @@ class Checkbox
 		}
 
 		//	...
-		$cookie = Cookie::Get($name);
-
-		//	...
 		printf('<input type="hidden" name="%s[0]" value="" />', $name);
 
 		//	...
@@ -73,9 +70,6 @@ class Checkbox
 
 			//	...
 			if( $value == ifset($session[$i]) ){
-				$check = true;
-			}else
-			if( $value == ifset($cookie[$i]) ){
 				$check = true;
 			}
 

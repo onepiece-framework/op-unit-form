@@ -63,7 +63,7 @@ class Radio
 			}
 
 			//	...
-			$checked = $value === $selected ? 'checked="checked"':'';
+			$checked = $value == $selected ? 'checked="checked"':'';
 
 			//	...
 			printf('<label><input type="radio" value="%s" %s %s />%s</label>', $value, join(' ', $attr), $checked, $label);

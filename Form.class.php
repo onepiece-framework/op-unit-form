@@ -283,78 +283,40 @@ class Form
 	 */
 	function Input($name)
 	{
+		//	...
+		static $request;
+
+		//	...
+		if(!$request){
+			if(!$request = Http::Request() ){
+				$request = $this->_sesssion;
+			}
+		}
+
+		//	...
 		if( $input = ifset($this->_form['input'][$name]) ){
+
+			//	...
+			$name  = ifset($input['name'], $name);
+
+			//	...
+			if(!$value = ifset($request[$name])){
+				$value = Cookie::Get($name);
+			}
+
+			//	...
 			switch( $type = ucfirst(ifset($input['type'])) ){
-				case 'Select':
+				case 'Checkbox':
 				case 'Radio':
-					return $type::Build($input, ifset($this->_sesssion[$input['name']]));
+				case 'Select':
+					return $type::Build($input, $value);
 
 				default:
-					return Input::Build($input, ifset($this->_sesssion[$input['name']]));
+					return Input::Build($input, $value);
 			}
 		}else{
 			Notice::Set("Has not been set. ($name)");
 		}
-	}
-
-	/** Print button tag.
-	 *
-	 * @param string $name
-	 */
-	function Button($name)
-	{
-		$input = $this->_form['input'][$name];
-		return Input::Build($input);
-	}
-
-	/** Print input tag as type of checkbox.
-	 *
-	 * @param string $name
-	 */
-	function Checkbox($name)
-	{
-		$input = $this->_form['input'][$name];
-		Checkbox::Build($input, ifset($this->_sesssion[$input['name']]));
-	}
-
-	/** Print input tag as type of radio.
-	 *
-	 * @param string $name
-	 */
-	function Radio($name)
-	{
-		$input = $this->_form['input'][$name];
-		Radio::Build($input, ifset($this->_sesssion[$input['name']]));
-	}
-
-	/** Print select tag.
-	 *
-	 * @param string $name
-	 */
-	function Select($name)
-	{
-		$input = $this->_form['input'][$name];
-		Select::Build($input, ifset($this->_sesssion[$input['name']]));
-	}
-
-	/** Print input tag as type of submit.
-	 *
-	 * @param string $name
-	 */
-	function Submit($name)
-	{
-		$input = $this->_form['input'][$name];
-		Input::Build($input);
-	}
-
-	/** Print textarea tag.
-	 *
-	 * @param string $name
-	 */
-	function Textarea($name)
-	{
-		$input = $this->_form['input'][$name];
-		self::Input($name);
 	}
 
 	/** Get/Set value of input.

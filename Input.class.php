@@ -46,8 +46,6 @@ class Input
 		//	...
 		if( $session ){
 			$saved = $session;
-		}else if( ifset($input['cookie']) ){
-			$saved = Cookie::Get($name);
 		}else{
 			$saved = null;
 		}
