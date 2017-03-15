@@ -87,7 +87,7 @@ class Form
 	 */
 	private function _Uniqueness()
 	{
-		return ifset($_REQUEST['u8s'] ,Hash1(microtime()));
+		return ifset($_REQUEST['u8s'] ,Hasha1(microtime()));
 	}
 
 	/** Get/Set form configuration.
@@ -119,7 +119,7 @@ class Form
 			//	Token
 			if( ifset($this->_form['token'], true) ){
 				$this->_form['token']['key']   = ifset($this->_form['u8s'], 'token');
-				$this->_form['token']['value'] = Hash1(microtime());
+				$this->_form['token']['value'] = Hasha1(microtime());
 			}
 
 			//	Expire time
