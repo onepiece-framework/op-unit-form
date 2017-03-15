@@ -139,12 +139,8 @@ class Form
 	{
 		try {
 			if( file_exists($file_path) ){
-				include($file_path);
-				if( isset($form) ){
-					$this->Config($form);
-				}else{
-					Notice::Set("Does not exists \$form variable.");
-				}
+				$form = include($file_path);
+				$this->Config($form);
 			}else{
 				Notice::Set("Does not exists this file. ($file_path)");
 			}
