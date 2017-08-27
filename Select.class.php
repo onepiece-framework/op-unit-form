@@ -36,23 +36,30 @@ class Select
 		}
 
 		//	...
+		$attr = join(' ', $attr);
+
+		//	...
 		$options = '';
-		foreach(ifset($input['option'], []) as $option){
-			//	...
-			if( is_array($option) ){
-				$value = ifset($option['value']);
-				$label = ifset($option['label'], $value);
-			}else if( is_string($option) or is_numeric($option) ){
-				$value = $option;
-				$label = $value;
+		if( isset($input['option']) ){
+			foreach($input['option'] as $option){
+				//	...
+				if( is_array($option) ){
+					$value = ifset($option['value']);
+					$label = ifset($option['label'], $value);
+				}else if( is_string($option) or is_numeric($option) ){
+					$value = $option;
+					$label = $value;
+				}
+
+				//	...
+				$selected = $session === (string)$value ? 'selected="selected"':'';
+
+				//	...
+				$options .= sprintf('<option value="%s" %s>%s</option>', $value, $selected, $label);
 			}
-
-			//	...
-			$selected = $session === (string)$value ? 'selected="selected"':'';
-
-			//	...
-			$options .= sprintf('<option value="%s" %s>%s</option>', $value, $selected, $label);
 		}
+
+		return "<select $attr>$options</select>";
 	}
 }
 
