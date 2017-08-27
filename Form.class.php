@@ -21,7 +21,7 @@
 class Form
 {
 	//	...
-	use OP_CORE;
+	use OP_CORE, OP_SESSION;
 
 	/** Form configuration.
 	 *
@@ -29,11 +29,31 @@ class Form
 	 */
 	private $_form = [];
 
+	/** Cookie
+	 *
+	 * @var array
+	 */
+	private $_cookie;
+
 	/** Session
 	 *
-	 * @var unknown
+	 * @var array
 	 */
 	private $_sesssion;
+
+	/** Error of validation.
+	 *
+	 * @var array
+	 */
+	private $_errors;
+
+	/** Construct
+	 *
+	 */
+	function __construct()
+	{
+		$this->_sesssion = &$this->Session('STORE');
+	}
 
 	/** Destruct
 	 *
@@ -42,44 +62,9 @@ class Form
 	{
 		//	Save changed token value.
 		$this->_sesssion['token'] = $this->_form['token']['value'];
-	}
 
-	/** Init session
-	 *
-	 */
-	private function _InitSession()
-	{
-		if(!isset($this->_sesssion)){
-			//	...
-			if(!session_id()){
-				session_start();
-			}
-
-			//	Remove expired data
-			foreach( ifset($_SESSION[_OP_NAME_SPACE_]['unit']['form'], []) as $name => $data ){
-				if( $expire = ifset($data['expire']) ){
-					if( $expire < Time::Get() ){
-						unset($_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]);
-					}
-				}
-			}
-
-			//	...
-			$name   = $this->_form['name'];
-			$u8s    = $this->_form['u8s'];
-			$expire = $this->_form['expire'];
-
-			//	Set expire of data.
-			$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]['expire'] = Time::Get() + $expire;
-
-			//	...
-			if( count($_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]) > 10 ){
-				unset($_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name]);
-			}
-
-			//	...
-			$this->_sesssion = &$_SESSION[_OP_NAME_SPACE_]['unit']['form'][$name][$u8s];
-		}
+		//	Save cookie.
+		Cookie::Set($this->_form['name'], $this->_cookie);
 	}
 
 	/** Uniqueness
@@ -92,16 +77,19 @@ class Form
 
 	/** Get/Set form configuration.
 	 *
-	 * @param string $form
+	 * @param  string $form
+	 * @return array  $form
 	 */
 	function Config($form=null)
 	{
 		if( $form ){
+			//	...
 			if( $this->_form ){
 				Notice::Set("Already initialized. {$this->_form['name']}");
 				return;
 			}
 
+			//	...
 			if( empty($form['name']) ){
 				Notice::Set('Form name is empty. $form["name"] = "form-name";');
 				return;
@@ -118,14 +106,21 @@ class Form
 
 			//	Token
 			if( ifset($this->_form['token'], true) ){
-				$this->_form['token']['key']   = ifset($this->_form['u8s'], 'token');
-				$this->_form['token']['value'] = Hasha1(microtime());
+				$this->_form['token'] = [
+					'key'   => ifset($this->_form['u8s'], 'token'),
+					'value' => Hasha1(microtime())
+				];
 			}
 
+			//	Initialize of cookie.
+			$this->_cookie = Cookie::Get($this->_form['name']);
+
+			/*
 			//	Expire time
 			if( empty($this->_form['expire']) ){
 				$this->_form['expire'] = 60 * 60 * 1;
 			}
+			*/
 		}else{
 			return $this->_form;
 		}
@@ -151,30 +146,33 @@ class Form
 
 	/** Save submit value to session.
 	 *
-	 * @param array $name
+	 * @param  array $request
+	 * @return array $session
 	 */
-	function Save($request)
+	function Save($request=null)
 	{
-		//	...
-		if(!isset($this->_sesssion)){
-			$this->_InitSession();
-		}
+		//	Get form name. Saved session value has separated to each form name.
+		$form = $this->_form['name'];
 
 		//	...
-		foreach($this->_form['input'] as $input){
-			$name = ifset($input['name']);
-			if( isset($request[$name]) ){
-				//	Save to Session.
-				$this->_sesssion[$name] = Escape($request[$name]);
+		if( $request ){
+			//	Each input.
+			foreach($this->_form['input'] as $name => $input){
+				//	Submitted value.
+				if( isset($request[$name]) ){
 
-				//	Save to Cookie.
-				if( ifset($input['cookie']) ){
-					Cookie::Set($name, $this->_sesssion[$name]);
+					//	Save to Session.
+					$this->_sesssion[$form][$name] = $value = Escape($request[$name]);
+
+					//	Save to Cookie.
+					$this->_cookie[$name] = ifset($input['cookie']) ? $value: null;
 				}
 			}
 		}
-	}
 
+		//	...
+		return $this->_sesssion[$form];
+	}
 
 	/** Token
 	 *
@@ -182,12 +180,6 @@ class Form
 	 */
 	function Token()
 	{
-		//	...
-		if(!isset($this->_sesssion)){
-			$this->_InitSession();
-		}
-
-		//	...
 		$request = Http::Request();
 
 		//	...
@@ -212,7 +204,7 @@ class Form
 		return true;
 	}
 
-	/** Configuration's test.
+	/** Configuration test.
 	 *
 	 */
 	function Test()
@@ -224,11 +216,20 @@ class Form
 
 	/** Print form tag. (open)
 	 *
+	 * @param string $action
 	 */
-	function Start()
+	function Start($action=null)
 	{
+		//	...
 		$attr = [];
-		foreach(['action','method','name','class','style'] as $key){
+
+		//	...
+		$key = 'action';
+		$val = ifset($action, $this->_form[$key]);
+		$attr[] = sprintf('%s="%s"', $key, $val);
+
+		//	...
+		foreach(['method','name','class','style'] as $key){
 			if( $val = ifset($this->_form[$key]) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
@@ -284,19 +285,18 @@ class Form
 
 		//	...
 		if(!$request){
-			if(!$request = Http::Request() ){
-				$request = $this->_sesssion;
-			}
+			$request = Http::Request();
 		}
 
 		//	...
 		if( $input = ifset($this->_form['input'][$name]) ){
+			//	...
+			if( empty($input['name']) ){
+				$input['name'] = $name;
+			}
 
 			//	...
-			$name  = ifset($input['name'], $name);
-
-			//	...
-			if(!$value = ifset($request[$name])){
+			if(!$value = ifset($request[$name], ifset($this->_sesssion[$this->_form['name']][$name]))){
 				$value = Cookie::Get($name);
 			}
 
@@ -311,8 +311,43 @@ class Form
 					return Input::Build($input, $value);
 			}
 		}else{
-			Notice::Set("Has not been set. ($name)");
+			Notice::Set("This name has not been into config. ($name)");
 		}
+	}
+
+	/** Output error message by validation.
+	 *
+	 * @param string $name
+	 */
+	function Error($name, $tag=null, $class=null)
+	{
+		//	...
+		if( empty($this->_errors[$name]) ){
+			return;
+		}
+
+		//	...
+		$result = null;
+		foreach( $this->_errors[$name] as $key => $val ){
+			//	...
+			if( isset($this->_form['input'][$name]['error'][$key]) ){
+				$error = $this->_form['input'][$name]['error'][$key];
+			}else{
+				$error = "Error of \"$key\" at $name.";
+			}
+
+			//	...
+			if( $tag ){
+				$tag   = Escape($tag);
+				$class = Escape($class);
+				$error = "<$tag class=\"$class\">$error</$tag>";
+			}
+
+			//	...
+			$result .= $error;
+		}
+
+		return $result;
 	}
 
 	/** Get/Set value of input.
@@ -323,16 +358,42 @@ class Form
 	function Value($name, $value=null)
 	{
 		//	...
-		if(!isset($this->_sesssion)){
-			$this->_InitSession();
-		}
+		$form = $this->_form['name'];
 
-		//	...
+		//	Override input value.
 		if( $value !== null ){
-			$this->_sesssion[$name] = Escape($value);
+			$this->_sesssion[$form][$name] = Escape($value);
 		}
 
 		//	...
-		return ifset($this->_sesssion[$name]);
+		$value = ifset($this->_sesssion[$form][$name]);
+
+		if( gettype($value) === 'array' ){
+			if( $this->_form['input'][$name]['type'] === 'checkbox' ){
+				//	Remove top index. top index is empty value.
+				array_shift($value);
+			}
+			$value = join(', ', $value);
+		}
+
+		return $value;
+	}
+
+	/** Set validation result.
+	 *
+	 * @param array $errors
+	 */
+	function Validation($errors)
+	{
+		$this->_errors = $errors;
+	}
+
+	/** Clear saved session value.
+	 *
+	 */
+	function Clear()
+	{
+		$form = $this->_form['name'];
+		$this->_sesssion[$form] = null;
 	}
 }
