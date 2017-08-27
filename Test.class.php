@@ -86,12 +86,14 @@ class Test
 	{
 		$io = true;
 
+		/*
 		//	...
 		if(!$name = ifset($input['name'])){
 			Html::P("Has not been set name attribute.");
 			D($input);
 			return false;
 		}
+		*/
 
 		//	...
 		foreach(['type'] as $key){
