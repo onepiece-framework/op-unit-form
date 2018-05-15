@@ -9,8 +9,13 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 
-/**
- * Form
+/** namespace
+ *
+ * @created   2018-01-22
+ */
+namespace OP\UNIT;
+
+/** Form
  *
  * @created   2017-01-25
  * @version   1.0
@@ -20,8 +25,10 @@
  */
 class Form
 {
-	//	...
-	use OP_CORE, OP_SESSION;
+	/** Trait
+	 *
+	 */
+	use \OP_CORE, \OP_SESSION;
 
 	/** Form configuration.
 	 *
@@ -29,30 +36,23 @@ class Form
 	 */
 	private $_form = [];
 
-	/** Cookie
-	 *
-	 * @var array
-	 */
-	private $_cookie;
-
-	/** Session
-	 *
-	 * @var array
-	 */
-	private $_sesssion;
-
 	/** Error of validation.
 	 *
 	 * @var array
 	 */
 	private $_errors;
 
+	/** Session
+	 *
+	 */
+	private $_session = [];
+
 	/** Construct
 	 *
 	 */
 	function __construct()
 	{
-		$this->_sesssion = &$this->Session('STORE');
+
 	}
 
 	/** Destruct
@@ -60,19 +60,61 @@ class Form
 	 */
 	function __destruct()
 	{
-		//	Save changed token value.
-		$this->_sesssion['token'] = $this->_form['token']['value'];
-
-		//	Save cookie.
-		Cookie::Set($this->_form['name'], $this->_cookie);
+		$this->Session($this->_form['name'], $this->_session);
 	}
 
-	/** Uniqueness
+	/** Initialize
 	 *
+	 * @param  mixed $form
+	 * @throws Exception
 	 */
-	private function _Uniqueness()
+	function Init($form)
 	{
-		return ifset($_REQUEST['u8s'] ,Hasha1(microtime()));
+		static $_origin;
+
+		//	...
+		if( $form === true ){
+			$form = $_origin;
+			$this->_form = null;
+		}else{
+			$_origin = $form;
+		}
+
+		//	...
+		if( is_string($form) ){
+			if( file_exists($form) ){
+				$form = include($form);
+			}else{
+				\Notice::Set("Does not found this file. ($form)");
+				return;
+			}
+		}
+
+		//	...
+		if( $this->_form ){
+			\Notice::Set("Already initialized. {$this->_form['name']}");
+			return;
+		}
+
+		//	...
+		if(!$form_name = ifset($form['name']) ){
+			\Notice::Set('Form name is empty. $form["name"] = "form-name";');
+			return;
+		}
+
+		//	...
+		if( empty($form['method']) ){
+			$form['method'] = 'post';
+		}
+
+		//	...
+		$this->_form = Escape($form);
+
+		//	...
+		$this->_session = $this->Session($form_name);
+
+		//	...
+		return true;
 	}
 
 	/** Get/Set form configuration.
@@ -82,45 +124,77 @@ class Form
 	 */
 	function Config($form=null)
 	{
+		//	...
 		if( $form ){
 			//	...
-			if( $this->_form ){
-				Notice::Set("Already initialized. {$this->_form['name']}");
+			if(!$this->Init($form) ){
 				return;
 			}
 
 			//	...
-			if( empty($form['name']) ){
-				Notice::Set('Form name is empty. $form["name"] = "form-name";');
-				return;
+			$form_name = $this->_form['name'];
+
+			//	Result of token authentication.
+			$token = $this->Token();
+
+			//	...
+			$request = $this->Request();
+
+			//	...
+			$cookie = \Cookie::Get($form_name, []);
+
+			//	...
+			foreach( $this->_form['input'] as $name => &$input ){
+				//	The value of the button will be sent only when clicked.
+				if( 'button' === strtolower($this->_form['input'][$name]['type']) ){
+					continue;
+				}
+
+				//	...
+				if( isset($request[$name]) ){
+					$value = $request[$name];
+				}else if( isset($cookie[$name]) ){
+					$value = $cookie[$name];
+				}else{
+					$value = null;
+				}
+
+				//	The value will overwrite.
+				if( $value !== null ){
+					//	That will not be saved in the session.
+					$input['value'] = $value;
+
+					//	Save to session?
+					$is_session = ifset($input['session'], true);
+
+					//	Check token result.
+					if( $token and $is_session ){
+						//	Overwrite to session from submitted value.
+						$this->_session[$name] = $value;
+
+						//	Save to cookie?
+						if( ifset($input['cookie']) ){
+							$cookie[$name] = $value;
+						}
+					}
+
+					//	Discard the saved session. (For developer feature)
+					if( $is_session === false ){
+						unset($this->_session[$name]);
+					}
+				}else{
+					//	That was not submitted this time. (If is transmitted at different time)
+					if( isset($this->_session[$name]) ){
+						//	Overwrite to form config from session.
+						$input['value'] = $this->_session[$name];
+					}
+				}
 			}
 
 			//	...
-			$this->_form = Escape($form);
-			$this->_form['escaped'] = true;
-
-			//	Uniqueness
-			if( ifset($this->_form['u8s'], true) ){
-				$this->_form['u8s'] = $this->_Uniqueness();
+			if( count($cookie) ){
+				\Cookie::Set($form_name, $cookie);
 			}
-
-			//	Token
-			if( ifset($this->_form['token'], true) ){
-				$this->_form['token'] = [
-					'key'   => ifset($this->_form['u8s'], 'token'),
-					'value' => Hasha1(microtime())
-				];
-			}
-
-			//	Initialize of cookie.
-			$this->_cookie = Cookie::Get($this->_form['name']);
-
-			/*
-			//	Expire time
-			if( empty($this->_form['expire']) ){
-				$this->_form['expire'] = 60 * 60 * 1;
-			}
-			*/
 		}else{
 			return $this->_form;
 		}
@@ -137,71 +211,66 @@ class Form
 				$form = include($file_path);
 				$this->Config($form);
 			}else{
-				Notice::Set("Does not exists this file. ($file_path)");
+				\Notice::Set("Does not exists this file. ($file_path)");
 			}
 		} catch ( Throwable $e ) {
-			Notice::Set($e->getMessage());
+			\Notice::Set($e->getMessage());
 		}
 	}
 
-	/** Save submit value to session.
+	/** Return the result of token authentication.
 	 *
-	 * @param  array $request
-	 * @return array $session
-	 */
-	function Save($request=null)
-	{
-		//	Get form name. Saved session value has separated to each form name.
-		$form = $this->_form['name'];
-
-		//	...
-		if( $request ){
-			//	Each input.
-			foreach($this->_form['input'] as $name => $input){
-				//	Submitted value.
-				if( isset($request[$name]) ){
-
-					//	Save to Session.
-					$this->_sesssion[$form][$name] = $value = Escape($request[$name]);
-
-					//	Save to Cookie.
-					$this->_cookie[$name] = ifset($input['cookie']) ? $value: null;
-				}
-			}
-		}
-
-		//	...
-		return $this->_sesssion[$form];
-	}
-
-	/** Token
+	 * <pre>
+	 * RETURN VALUE:
+	 *   null:    Token has not been set yet.
+	 *   boolean: Token match result.
+	 * </pre>
 	 *
 	 * @return boolean
 	 */
 	function Token()
 	{
-		$request = Http::Request();
+		static $io = '';
 
 		//	...
-		$key = $this->_form['token']['key'];
+		if( $io === '' ){
+			//	Last time token.
+			$token = ifset($this->_session['token'], false);
+
+			//	Regenerate new token.
+			$this->_session['token'] = Hasha1(microtime());
+
+			//	Confirmation of request token.
+			if( $token ){
+				$io = ($token === self::Request('token'));
+			}else{
+				$io = null;
+			}
+		}
+
+		return $io;
+	}
+
+	/** Request
+	 *
+	 * @param string $name
+	 */
+	function Request($name=null)
+	{
+		static $_request;
 
 		//	...
-		if( empty($request[$key]) ){
-			return false;
+		if(!$_request ){
+			$_request = \Http::Request();
 		}
 
 		//	...
-		if( empty($this->_sesssion['token']) ){
-			return false;
+		if( $name === true ){
+			$_request = [];
 		}
 
 		//	...
-		if( $this->_sesssion['token'] !== $request[$key] ){
-			return false;
-		}
-
-		//	...
-		return true;
+		return $name ? ifset($_request[$name]): $_request;
 	}
 
 	/** Configuration test.
@@ -209,37 +278,50 @@ class Form
 	 */
 	function Test()
 	{
-		if( Env::isAdmin() ){
-			Test::Config($this->_form);
+		//	...
+		if(!\Env::isAdmin() ){
+			return false;
 		}
+
+		//	...
+		if(!$io = \OP\UNIT\FORM\Test::Config($this->_form) ){
+			return \OP\UNIT\FORM\Test::Error();
+		}
+
+		//	...
+		return $io;
 	}
 
 	/** Print form tag. (open)
 	 *
-	 * @param string $action
+	 * @param array $config
 	 */
-	function Start($action=null)
+	function Start($config=[])
 	{
+		//	...
+		if(!$this->_form ){
+			throw new Exception("Has not been set configuration.");
+		}
+
 		//	...
 		$attr = [];
 
 		//	...
-		$key = 'action';
-		$val = ifset($action, $this->_form[$key]);
-		$attr[] = sprintf('%s="%s"', $key, $val);
-
-		//	...
-		foreach(['method','name','class','style'] as $key){
+		foreach(['action','method','name','class','style'] as $key){
+			if( $val = ifset($config[$key]) ){
+				//	...
+			}else
 			if( $val = ifset($this->_form[$key]) ){
-				$attr[] = sprintf('%s="%s"', $key, $val);
+				//	...
 			}
+			//	...
+			$attr[] = sprintf('%s="%s"', $key, $val);
 		}
 
 		//	...
 		printf('<form %s>', join(' ', $attr));
-		printf('<input type="hidden" name="form_name" value="%s" />', $this->_form['name']);
-		printf('<input type="hidden" name="u8s" value="%s" />',       $this->_form['u8s']);
-		printf('<input type="hidden" name="%s"  value="%s" />',       $this->_form['token']['key'], $this->_form['token']['value']);
+		printf('<input type="hidden" name="form_name" value="%s" />', $this->_form['name']    );
+		printf('<input type="hidden" name="token"     value="%s" />', $this->_session['token']);
 	}
 
 	/** Print form tag. (close)
@@ -249,105 +331,87 @@ class Form
 		print "</form>";
 	}
 
-	/** Print label name.
+	/** Get input label.
+	 *
+	 * @param  string $name
+	 * @return string $label
+	 */
+	function GetLabel($name)
+	{
+		//	...
+		if( empty( $this->_form['input'][$name] ) ){
+			\Notice::Set("Does not exists this name. ($name)");
+			return;
+		}
+
+		//	...
+		if( isset( $this->_form['input'][$name]['label'] ) ){
+			return $this->_form['input'][$name]['label'];
+		}
+
+		//	...
+		if( empty( $this->_form['input'][$name]['label'] ) ){
+			\Notice::Set("Has not been set label. ($name)");
+			return;
+		}
+	}
+
+	/** Print input label.
 	 *
 	 * @param string $name
 	 */
 	function Label($name)
 	{
-		//	...
-		if( isset( $this->_form['input'][$name]['label']) ){
-			return $this->_form['input'][$name]['label'];
-		}
-
-		//	...
-		if( empty($this->_form['input'][$name]) ){
-			Notice::Set("Does not exists this name. ($name)");
-			return;
-		}
-
-		//	...
-		if( empty($this->_form['input'][$name]['label']) ){
-			Notice::Set("Has not been set label. ($name)");
-			return;
-		}
+		echo $this->GetLabel($name);
 	}
 
-	/** Print input tag.
+	/** Generate input tag.
 	 *
 	 * @param  string $name
 	 * @return string
 	 */
-	function Input($name)
+	function GetInput($name)
 	{
 		//	...
 		static $request;
 
 		//	...
 		if(!$request){
-			$request = Http::Request();
+			$request = self::Request();
 		}
 
 		//	...
 		if( $input = ifset($this->_form['input'][$name]) ){
 			//	...
-			if( empty($input['name']) ){
-				$input['name'] = $name;
-			}
-
-			//	...
-			if(!$value = ifset($request[$name], ifset($this->_sesssion[$this->_form['name']][$name]))){
-				$value = Cookie::Get($name);
-			}
+			$input['name'] = $name;
 
 			//	...
 			switch( $type = ucfirst(ifset($input['type'])) ){
 				case 'Checkbox':
 				case 'Radio':
 				case 'Select':
-					return $type::Build($input, $value);
+				case 'Button':
+					$path = "\OP\UNIT\FORM\\$type";
+					return $path::Build($input);
+
+				case 'Submit':
+					return \OP\UNIT\FORM\Button::Build($input);
 
 				default:
-					return Input::Build($input, $value);
+					return \OP\UNIT\FORM\Input::Build($input);
 			}
 		}else{
-			Notice::Set("This name has not been into config. ($name)");
+			\Notice::Set("This name has not been into config. ($name)");
 		}
 	}
 
-	/** Output error message by validation.
+	/** Print generated input tag.
 	 *
 	 * @param string $name
 	 */
-	function Error($name, $tag=null, $class=null)
+	function Input($name)
 	{
-		//	...
-		if( empty($this->_errors[$name]) ){
-			return;
-		}
-
-		//	...
-		$result = null;
-		foreach( $this->_errors[$name] as $key => $val ){
-			//	...
-			if( isset($this->_form['input'][$name]['error'][$key]) ){
-				$error = $this->_form['input'][$name]['error'][$key];
-			}else{
-				$error = "Error of \"$key\" at $name.";
-			}
-
-			//	...
-			if( $tag ){
-				$tag   = Escape($tag);
-				$class = Escape($class);
-				$error = "<$tag class=\"$class\">$error</$tag>";
-			}
-
-			//	...
-			$result .= $error;
-		}
-
-		return $result;
+		echo $this->GetInput($name);
 	}
 
 	/** Get/Set value of input.
@@ -355,37 +419,107 @@ class Form
 	 * @param string $name
 	 * @param string $value Set or Overwrite value.
 	 */
-	function Value($name, $value=null)
+	function GetValue($name, $value=null)
 	{
-		//	...
-		$form = $this->_form['name'];
-
 		//	Override input value.
 		if( $value !== null ){
-			$this->_sesssion[$form][$name] = Escape($value);
+			$this->_session[$name] = Escape($value);
 		}
 
 		//	...
-		$value = ifset($this->_sesssion[$form][$name]);
+		$value = ifset($this->_session[$name]);
 
+		//	...
+		if( $value === null ){
+			$value = self::Request($name);
+		}
+
+		//	...
 		if( gettype($value) === 'array' ){
+			//	...
 			if( $this->_form['input'][$name]['type'] === 'checkbox' ){
 				//	Remove top index. top index is empty value.
 				array_shift($value);
 			}
-			$value = join(', ', $value);
 		}
 
+		//	...
 		return $value;
 	}
 
-	/** Set validation result.
+	/** Get saved values.
 	 *
-	 * @param array $errors
+	 * @return array
 	 */
-	function Validation($errors)
+	function Values()
 	{
-		$this->_errors = $errors;
+		//	...
+		$values = $this->_session;
+
+		//	...
+		unset($values['token']);
+
+		//	...
+		return $values;
+	}
+
+	/** Display value at input name.
+	 *
+	 * @param  string $name
+	 */
+	function Value($name)
+	{
+		//	...
+		$input = $this->_form['input'][$name];
+
+		//	...
+		$value = $this->GetValue($name);
+
+		//	...
+		if( $input['type'] === 'select' and ifset($input['multiple']) ){
+			$input['type'] = 'multiple';
+		}
+
+		//	...
+		switch( $type = $input['type'] ){
+			case 'radio':
+			case 'select':
+				foreach( $input['values'] as $values ){
+					//	...
+					if(!isset($values['value']) ){ continue; }
+
+					//	...
+					if( $value === (string)$values['value'] ){
+						$value = $values['label'];
+						break;
+					}
+				}
+				break;
+
+			case 'checkbox':
+			case 'multiple':
+				$labels = [];
+				foreach( $input['values'] as $values ){
+					if( is_array($value) and in_array($values['value'], $value, false) ){
+						$labels[] = $values['label'];
+					}
+				}
+				$value = $labels;
+				break;
+
+			case 'textarea':
+				$value = nl2br($value);
+				break;
+
+			default:
+		}
+
+		//	...
+		if( is_string($value) ){
+			echo $value;
+		}else{
+			D($value);
+		}
 	}
 
 	/** Clear saved session value.
@@ -393,7 +527,13 @@ class Form
 	 */
 	function Clear()
 	{
-		$form = $this->_form['name'];
-		$this->_sesssion[$form] = null;
+		//	...
+		$token = $this->_session['token'];
+		$this->_session = [];
+		$this->_session['token'] = $token;
+
+		//	...
+		$this->Request(true);
+		$this->Config(true);
 	}
 }

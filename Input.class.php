@@ -9,8 +9,13 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 
-/**
- * Input
+/** namespace
+ *
+ * @created   2017-12-18
+ */
+namespace OP\UNIT\FORM;
+
+/** Input
  *
  * @created   2017-01-25
  * @version   1.0
@@ -21,37 +26,32 @@
 class Input
 {
 	//	...
-	use OP_CORE;
+	use \OP_CORE;
 
 	/**
 	 * Build input tag.
 	 *
 	 * @param array $input
 	 */
-	static function Build($input, $session=null)
+	static function Build($input)
 	{
 		//	...
+		$type  = ifset($input['type']);
+		$name  = ifset($input['name']);
+		$value = ifset($input['value']);
+		$saved = null;
+
+		//	...
 		$attr = [];
-		foreach(['class','style'] as $key){
-			if( $val = Escape(ifset($input[$key])) ){
+		$keys = ['class','style','placeholder'];
+		foreach( $keys as $key ){
+			if( $val = ifset($input[$key]) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
 		}
 
 		//	...
-		$type  = ifset($input['type']);
-		$name  = ifset($input['name']);
-		$value = ifset($input['value']);
-
-		//	...
-		if( $session ){
-			$saved = $session;
-		}else{
-			$saved = null;
-		}
-
-		//	...
-		switch( $type ){
+		switch( strtolower($type) ){
 			case 'submit':
 			case 'button':
 				break;
@@ -62,10 +62,7 @@ class Input
 					$attr[] = 'checked="checked"';
 				}
 				break;
-
 			default:
-				$value = $saved;
-			break;
 		}
 
 		//	...

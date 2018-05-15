@@ -9,8 +9,13 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 
-/**
- * Test
+/** namespace
+ *
+ * @created   2018-04-20
+ */
+namespace OP\UNIT\FORM;
+
+/** Test
  *
  * @created   2017-01-25
  * @version   1.0
@@ -21,7 +26,7 @@
 class Test
 {
 	//	...
-	use OP_CORE;
+	use \OP_CORE;
 
 	/** Configuration test.
 	 *
@@ -30,20 +35,23 @@ class Test
 	 */
 	static function Config($form)
 	{
-		$io = null;
+		//	...
+		$io = true;
 
 		//	...
-		$io = self::Form($form) ? $io: false;
+		$io = self::Form($form);
 
 		//	...
 		foreach( $form['input'] as $name => $input ){
 			//	...
 			if( gettype($name) !== 'string' ){
-				Html::P("\$form[input] is array. (not assoc)\n Ex. \$form[input][input-name] = \$input;");
+				self::Error("\$form[input] is array. (not assoc)\n Ex. \$form[input][input-name] = \$input;");
 			}
 
 			//	...
-			$io = self::Input($input) ? $io: false;
+			if(!self::Input($input) ){
+				$io = false;
+			}
 		}
 
 		//	...
@@ -61,14 +69,14 @@ class Test
 
 		//	...
 		if(!$name = ifset($form['name'])){
-			Html::P("\$form has not been set name attribute.");
+			self::Error("\$form has not been set name attribute.");
 			return;
 		}
 
 		//	...
 		foreach(['action','method'] as $key){
 			if(!isset($form[$key])){
-				Html::P("\$form has not been set $key attribute. ($name)");
+				self::Error("\$form has not been set $key attribute. ($name)");
 				$io = false;
 			}
 		}
@@ -86,24 +94,34 @@ class Test
 	{
 		$io = true;
 
-		/*
-		//	...
-		if(!$name = ifset($input['name'])){
-			Html::P("Has not been set name attribute.");
-			D($input);
-			return false;
-		}
-		*/
-
 		//	...
 		foreach(['type'] as $key){
 			if(!isset($input[$key])){
-				Html::P("Input config has not been set $key attribute. ($name)");
+				self::Error("Input config has not been set $key attribute. ($name)");
 				$io = false;
 			}
 		}
 
 		//	...
 		return $io;
+	}
+
+	/** Get/Set Error.
+	 *
+	 * @param string $error
+	 */
+	static function Error( string $error=null )
+	{
+		//	...
+		static $_error = [];
+
+		//	...
+		if( $error ){
+			//	...
+			$_error[] = $error;
+		}else{
+			//	...
+			return $_error;
+		}
 	}
 }

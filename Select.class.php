@@ -9,6 +9,12 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 
+/** namespace
+ *
+ * @created   2017-12-18
+ */
+namespace OP\UNIT\FORM;
+
 /** Select
  *
  * @created   2017-01-25
@@ -20,78 +26,65 @@
 class Select
 {
 	//	trait
-	use OP_CORE;
+	use \OP_CORE;
 
 	/** Build select tag.
 	 *
 	 * @param array $input
 	 */
-	static function Build($input, $session)
+	static function Build($input)
 	{
 		//	...
-		foreach(['type','name','class','style','value'] as $key){
+		$attr = [];
+		$name = $input['name'];
+
+		//	...
+		foreach(['type','class','style'] as $key){
 			if( $val = ifset($input[$key]) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
 		}
 
 		//	...
+		if( $is_multiple = ifset($input['multiple']) ){
+			$attr[] = 'multiple="multiple"';
+			$attr[] = sprintf('name="%s[]"', $name);
+		}else{
+			$attr[] = sprintf('name="%s"', $name);
+		}
+
+		//	...
+		$multiple = $is_multiple ? '<input type="hidden" name="'.$name.'[]" value=""/>'.PHP_EOL: null;
+
+		//	...
 		$attr = join(' ', $attr);
 
 		//	...
 		$options = '';
-		if( isset($input['option']) ){
-			foreach($input['option'] as $option){
-				//	...
-				if( is_array($option) ){
-					$value = ifset($option['value']);
-					$label = ifset($option['label'], $value);
-				}else if( is_string($option) or is_numeric($option) ){
-					$value = $option;
-					$label = $value;
-				}
-
-				//	...
-				$selected = $session === (string)$value ? 'selected="selected"':'';
-
-				//	...
-				$options .= sprintf('<option value="%s" %s>%s</option>', $value, $selected, $label);
-			}
-		}
-
-		return "<select $attr>$options</select>";
-	}
-}
-
-/** Option
- *
- * @created   2017-01-25
- * @version   1.0
- * @package   unit-form
- * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
- * @copyright Tomoaki Nagahara All right reserved.
- */
-class Option
-{
-	//	...
-	use OP_CORE;
-
-	/**
-	 * Build option tag.
-	 *
-	 * @param array $input
-	 */
-	static function Build($option)
-	{
-		if( is_array($option) ){
-			$value = ifset($option['value']);
-			$label = ifset($option['label'], $value);
-		}else if( is_string($option) or is_numeric($option) ){
-			$value = $option;
-			$label = $value;
-		}
 
 		//	...
-		printf('<select %s>%s</select>', join(' ', $attr), $options);
+		foreach( $input['values'] as $values ){
+			//	...
+			$label = ifset($values['label']);
+			$value = ifset($values['value']);
+			$check = ifset($values['check']);
+
+			//	...
+			if( isset($input['value']) ){
+				if( $is_multiple ){
+					$check = in_array((string)$value, $input['value'], true);
+				}else{
+					$check = (string)$input['value'] === (string)$value ? true: false;
+				}
+			}
+
+			//	...
+			$selected = $check ? 'selected="selected"':'';
+
+			//	...
+			$options .= sprintf('<option value="%s" %s>%s</option>', $value, $selected, $label);
+		}
+
+		return "$multiple<select $attr>$options</select>";
 	}
 }

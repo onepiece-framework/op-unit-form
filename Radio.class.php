@@ -9,8 +9,13 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 
-/**
- * Radio
+/** namespace
+ *
+ * @created   2017-12-18
+ */
+namespace OP\UNIT\FORM;
+
+/** Radio
  *
  * @created   2017-01-25
  * @version   1.0
@@ -21,7 +26,7 @@
 class Radio
 {
 	//	...
-	use OP_CORE;
+	use \OP_CORE;
 
 	/**
 	 * Build input tag as type of radio.
@@ -29,44 +34,38 @@ class Radio
 	 * @param array  $input
 	 * @param string $session
 	 */
-	static function Build($input, $session=null)
+	static function Build($input)
 	{
 		//	...
-		foreach(['name','class','style'] as $key){
-			if( $val = Escape(ifset($input[$key])) ){
+		$attr = [];
+
+		//	...
+		foreach(['class','style'] as $key){
+			if( $val = ifset($input[$key]) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
 		}
 
 		//	...
-		if( $session !== null ){
-			$selected = $session;
-		}else{
-			$selected = (string)ifset($input['value']);
-		}
-
-		//	...
-		if( empty($input['values']) ){
-			$input['values'][0]['value'] = ifset($input['value']);
-			$input['values'][0]['label'] = ifset($input['label']);
-		}
+		$name = $input['name'];
 
 		//	...
 		foreach($input['values'] as $values){
 			//	...
-			if( is_array($values) ){
-				$value = ifset($values['value']);
-				$label = ifset($values['label'], $value);
-			}else if( is_string($values) or is_numeric($values) ){
-				$value = $values;
-				$label = $values;
+			$label = ifset($values['label']);
+			$value = ifset($values['value']);
+			$check = ifset($values['check']);
+
+			//	Overwrite checked.
+			if( isset($input['value']) ){
+				$check = $input['value'] == $value ? true: false;
 			}
 
 			//	...
-			$checked = $value == $selected ? 'checked="checked"':'';
+			$checked = $check ? 'checked="checked"':'';
 
 			//	...
-			printf('<label><input type="radio" value="%s" %s %s />%s</label>', $value, join(' ', $attr), $checked, $label);
+			printf('<label><input type="radio" name="%s" value="%s" %s %s />%s</label>', $name, $value, join(' ', $attr), $checked, $label);
 		}
 	}
 }

@@ -9,8 +9,13 @@
  * @copyright Tomoaki Nagahara All right reserved.
  */
 
-/**
- * Checkbox
+/** namespace
+ *
+ * @created   2017-12-18
+ */
+namespace OP\UNIT\FORM;
+
+/** Checkbox
  *
  * @created   2017-01-25
  * @version   1.0
@@ -21,21 +26,21 @@
 class Checkbox
 {
 	//	...
-	use OP_CORE;
+	use \OP_CORE;
 
 	/**
 	 * Build input tag as type of checkbox.
 	 *
 	 * @param array $input
 	 */
-	static function Build($input, $session=null)
+	static function Build($input)
 	{
 		//	...
 		$attr = [];
 
 		//	...
 		foreach(['class','style'] as $key){
-			if( $val = Escape(ifset($input[$key])) ){
+			if( $val = ifset($input[$key]) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
 		}
@@ -44,40 +49,28 @@ class Checkbox
 		$name = $input['name'];
 
 		//	...
-		if( empty($input['values']) ){
-			$input['values'][0]['value'] = ifset($input['value']);
-			$input['values'][0]['label'] = ifset($input['label']);
-		}
-
-		//	...
 		printf('<input type="hidden" name="%s[0]" value="" />', $name);
 
 		//	...
 		$i = 1;
 		foreach($input['values'] as $values){
 			//	...
-			$check = null;
+			$label = ifset($values['label']);
+			$value = ifset($values['value']);
+			$check = ifset($values['check']);
 
 			//	...
-			if( is_array($values) ){
-				$value = ifset($values['value']);
-				$label = ifset($values['label'], $value);
-				$check = ifset($values['check']);
-			}else if( is_string($values) or is_numeric($values) ){
-				$value = $values;
-				$label = $values;
+			if( ifset($input['value']) ){
+				$check = array_search($value, $input['value']);
 			}
 
 			//	...
-			if( $value == ifset($session[$i]) ){
-				$check = true;
-			}
-
-			//	...
-			$checked = $check ? 'checked="checked"': '';
+			$checked = $check ? 'checked="checked"':'';
 
 			//	...
 			printf('<label><input type="checkbox" name="%s[%s]" value="%s" %s %s />%s</label>', $name, $i, $value, join(' ', $attr), $checked, $label);
+
+			//	...
 			$i++;
 		}
 	}
