@@ -189,6 +189,11 @@ class Form
 			$cookie = \Cookie::Get($form_name, []);
 
 			//	...
+			if( empty($this->_form['input']) ){
+				$this->_form['input'] = [];
+			}
+
+			//	...
 			foreach( $this->_form['input'] as $name => &$input ){
 				//	The value of the button will be sent only when clicked.
 				if( 'button' === strtolower($this->_form['input'][$name]['type']) ){
