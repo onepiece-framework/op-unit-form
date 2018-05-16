@@ -195,8 +195,11 @@ class Form
 
 			//	...
 			foreach( $this->_form['input'] as $name => &$input ){
+				//	...
+				$type = strtolower($this->_form['input'][$name]['type']);
+
 				//	The value of the button will be sent only when clicked.
-				if( 'button' === strtolower($this->_form['input'][$name]['type']) ){
+				if( 'button' === $type ){
 					continue;
 				}
 
