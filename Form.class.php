@@ -588,12 +588,25 @@ class Form
 	function Clear()
 	{
 		//	...
+		if(!$this->_form ){
+			\Notice::Set("Has not been set form configuration.");
+			return;
+		}
+
+		//	...
 		$token = $this->_session['token'];
 		$this->_session = [];
 		$this->_session['token'] = $token;
 
 		//	...
-		$this->Request(true);
-		$this->Config(true);
+		\Cookie::Set($this->_form['name'], []);
+
+		//	...
+		$this->Request(null);
+
+		//	...
+		foreach( $this->_form['input'] as &$input ){
+			unset($input['value']);
+		}
 	}
 }
