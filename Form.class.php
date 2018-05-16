@@ -103,7 +103,9 @@ class Form
 	 */
 	function __destruct()
 	{
-		$this->Session($this->_form['name'], $this->_session);
+		if( $name = $this->_form['name'] ?? null ){
+			$this->Session($name, $this->_session);
+		}
 	}
 
 	/** Initialize
