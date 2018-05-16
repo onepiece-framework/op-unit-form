@@ -170,7 +170,9 @@ class Form
 	function Config($form=null)
 	{
 		//	...
-		if( $form ){
+		if(!$form ){
+			return $this->_form;
+		}else{
 			//	...
 			if(!$this->Init($form) ){
 				return;
@@ -253,8 +255,6 @@ class Form
 			if( count($cookie) ){
 				\Cookie::Set($form_name, $cookie);
 			}
-		}else{
-			return $this->_form;
 		}
 	}
 
