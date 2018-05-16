@@ -606,6 +606,11 @@ class Form
 		}
 	}
 
+	function Error()
+	{
+
+	}
+
 	/** Clear saved session value.
 	 *
 	 */
