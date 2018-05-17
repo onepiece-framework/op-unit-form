@@ -367,6 +367,13 @@ class Form
 		$attr = [];
 
 		//	...
+		if( empty($config['class']) ){
+			$config['class'] = 'OP ';
+		}else{
+			$config['class'] = 'OP ' . $config['class'] . ' ';
+		}
+
+		//	...
 		foreach(['action','method','name','id','class','style'] as $key){
 			//	...
 			$val = $config[$key] ?? $this->_form[$key] ?? null;
