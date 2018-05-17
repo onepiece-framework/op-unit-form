@@ -46,7 +46,7 @@ class Select
 		}
 
 		//	...
-		if( $is_multiple = ifset($input['multiple']) ){
+		if( $is_multiple = $input['multiple'] ?? false ){
 			$attr[] = 'multiple="multiple"';
 			$attr[] = sprintf('name="%s[]"', $name);
 		}else{
