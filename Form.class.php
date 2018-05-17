@@ -313,19 +313,19 @@ class Form
 
 	/** Request
 	 *
-	 * @param string $name
+	 * @param	 null|string	 $name
 	 */
-	function Request($name=null)
+	function Request($name='')
 	{
-		static $_request;
+		static $_request = null;
 
 		//	...
-		if(!$_request ){
-			$_request = \Http::Request();
+		if( $_request === null ){
+			$_request = ifset($_POST);
 		}
 
-		//	...
-		if( $name === true ){
+		//	Erase cached request value.
+		if( $name === null ){
 			$_request = [];
 		}
 
