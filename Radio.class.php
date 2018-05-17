@@ -52,9 +52,9 @@ class Radio
 		//	...
 		foreach($input['values'] as $values){
 			//	...
-			$label = ifset($values['label']);
-			$value = ifset($values['value']);
-			$check = ifset($values['check']);
+			$label = $values['label'];
+			$value = $values['value'];
+			$check = $values['check'];
 
 			//	Overwrite checked.
 			if( isset($input['value']) ){

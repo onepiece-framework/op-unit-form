@@ -55,9 +55,9 @@ class Checkbox
 		$i = 1;
 		foreach($input['values'] as $values){
 			//	...
-			$label = ifset($values['label']);
-			$value = ifset($values['value']);
-			$check = ifset($values['check']);
+			$label = $values['label'];
+			$value = $values['value'];
+			$check = $values['check'];
 
 			//	...
 			if( ifset($input['value']) ){
