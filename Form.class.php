@@ -230,7 +230,9 @@ class Form
 					//	Check token result.
 					if( $token and $is_session ){
 						//	Overwrite to session from submitted value.
-						$this->_session[$name] = $value;
+						if( $input['session'] ?? true ){
+							$this->_session[$name] = $value;
+						}
 
 						//	Save to cookie?
 						if( ifset($input['cookie']) ){
