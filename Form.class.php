@@ -367,13 +367,13 @@ class Form
 		$attr = [];
 
 		//	...
-		foreach(['action','method','name','class','style'] as $key){
 			if( $val = ifset($config[$key]) ){
 				//	...
 			}else
 			if( $val = ifset($this->_form[$key]) ){
 				//	...
 			}
+		foreach(['action','method','name','id','class','style'] as $key){
 			//	...
 			$attr[] = sprintf('%s="%s"', $key, $val);
 		}
