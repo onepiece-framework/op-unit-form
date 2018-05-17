@@ -449,7 +449,6 @@ class Form
 	 */
 	function GetInput($name)
 	{
-		//	...
 		static $request;
 
 		//	...
@@ -458,7 +457,15 @@ class Form
 		}
 
 		//	...
-		if( $input = ifset($this->_form['input'][$name]) ){
+		try {
+			//	...
+			if( empty($this->_form['input'][$name]) ){
+				throw new \Exception("This name has not been into config. ($name)");
+			}
+
+			//	...
+			$input = $this->_form['input'][$name];
+
 			//	...
 			$input['name'] = $name;
 
@@ -477,8 +484,8 @@ class Form
 				default:
 					return \OP\UNIT\FORM\Input::Build($input);
 			}
-		}else{
-			\Notice::Set("This name has not been into config. ($name)");
+		} catch ( \Throwable $e ) {
+			\Notice::Set($e);
 		}
 	}
 
