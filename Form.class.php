@@ -47,48 +47,6 @@ class Form
 	 */
 	private $_session = [];
 
-	/** Adjust to $input['values'].
-	 *
-	 * @param	 array	&$input
-	 */
-	private function _AdjustValues(&$input)
-	{
-		//	In case of empty.
-		if( empty($input['values']) ){
-			$input['values'] = $input['options'] ?? $input['option'] ?? [];
-		}
-
-		//	In case of string.
-		if( is_string($input['values']) ){
-			$input['values'] = explode(',', $input['values']);
-		}
-
-		//	...
-		foreach( $input['values'] as $key => &$values ){
-			//	...
-			$check = false;
-			$value = null;
-
-			//	...
-			if( is_string($key) ){
-				$value = $key;
-			}
-
-			//	...
-			if(!is_array($values) ){
-				$label = $values;
-				$value = $value ?? $values;
-				$values = [];
-			}else{
-				$label = $values['label'] ?? $value;
-			}
-
-			//	...
-			$values['label'] = $label;
-			$values['value'] = $value;
-			$values['check'] = $check;
-		}
-	}
 
 	/** Construct
 	 *
