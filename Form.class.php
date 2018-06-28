@@ -437,19 +437,11 @@ class Form
 
 	/** Generate input tag.
 	 *
-	 * @param  string $name
-	 * @return string
+	 * @param	 string			 $name
+	 * @return	 string
 	 */
 	function GetInput($name)
 	{
-		static $request;
-
-		//	...
-		if(!$request){
-			$request = self::Request();
-		}
-
-		//	...
 		try {
 			//	...
 			if( empty($this->_form['input'][$name]) ){
