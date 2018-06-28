@@ -349,7 +349,8 @@ class Form
 			}
 		}
 
-		return $io;
+		//	...
+		return $this->_is_token;
 	}
 
 	/** Print form tag. (open)
