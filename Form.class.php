@@ -423,15 +423,7 @@ class Form
 		}
 
 		//	...
-		if( isset( $this->_form['input'][$name]['label'] ) ){
-			return $this->_form['input'][$name]['label'];
-		}
-
-		//	...
-		if( empty( $this->_form['input'][$name]['label'] ) ){
-			\Notice::Set("Has not been set label. ($name)");
-			return;
-		}
+		return $this->_form['input'][$name]['label'] ?? $name;
 	}
 
 	/** Print input label.
