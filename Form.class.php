@@ -499,22 +499,11 @@ class Form
 	/** Get/Set value of input.
 	 *
 	 * @param string $name
-	 * @param string $value Set or Overwrite value.
 	 */
-	function GetValue($name, $value=null)
+	function GetValue($name)
 	{
-		//	Override input value.
-		if( $value !== null ){
-			$this->_session[$name] = Escape($value);
-		}
-
 		//	...
-		$value = ifset($this->_session[$name]);
-
-		//	...
-		if( $value === null ){
-			$value = self::Request($name);
-		}
+		$value = $this->_session[$name] ?? $this->_request[$name] ?? null;
 
 		//	...
 		if( gettype($value) === 'array' ){
