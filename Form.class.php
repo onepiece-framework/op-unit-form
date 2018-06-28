@@ -610,13 +610,13 @@ class Form
 		switch( $type = $input['type'] ){
 			case 'radio':
 			case 'select':
-				foreach( $input['values'] as $values ){
+				foreach( $input['option'] as $option ){
 					//	...
-					if(!isset($values['value']) ){ continue; }
+					if(!isset($option['value']) ){ continue; }
 
 					//	...
-					if( $value === (string)$values['value'] ){
-						$value = $values['label'];
+					if( $value === (string)$option['value'] ){
+						$value = $option['label'];
 						break;
 					}
 				}
@@ -624,13 +624,13 @@ class Form
 
 			case 'checkbox':
 			case 'multiple':
-				$labels = [];
-				foreach( $input['values'] as $values ){
-					if( is_array($value) and in_array($values['value'], $value, false) ){
-						$labels[] = $values['label'];
+				$label = null;
+				foreach( $input['option'] as $option ){
+					if( is_array($value) and in_array($option['value'], $value, false) ){
+						$label .= '<span>'.$option['label'].'</span>';
 					}
 				}
-				$value = $labels;
+				$value = $label;
 				break;
 
 			case 'textarea':
@@ -641,11 +641,7 @@ class Form
 		}
 
 		//	...
-		if( is_string($value) ){
-			echo $value;
-		}else{
-			D($value);
-		}
+		echo $value;
 	}
 
 	function Error()
