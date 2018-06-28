@@ -36,26 +36,19 @@ class Test
 	static function Config($form)
 	{
 		//	...
-		$io = true;
+		$failed = false;
 
 		//	...
-		$io = self::Form($form);
+		if(!self::Form($form) ){
+			$failed = true;
+		}
 
-		//	...
-		foreach( $form['input'] as $name => $input ){
-			//	...
-			if( gettype($name) !== 'string' ){
-				self::Error("\$form[input] is array. (not assoc)\n Ex. \$form[input][input-name] = \$input;");
-			}
-
-			//	...
-			if(!self::Input($input) ){
-				$io = false;
-			}
+		if(!self::Inputs($form) ){
+			$failed = true;
 		}
 
 		//	...
-		return $io;
+		return !$failed;
 	}
 
 	/** Form configuration test.
@@ -65,24 +58,51 @@ class Test
 	 */
 	static function Form($form)
 	{
-		$io = true;
+		//	...
+		$failed = false;
 
 		//	...
-		if(!$name = ifset($form['name'])){
+		if(!$name = $form['name'] ?? null ){
 			self::Error("\$form has not been set name attribute.");
 			return;
 		}
 
 		//	...
-		foreach(['action','method'] as $key){
+		foreach([/*'action','method'*/] as $key){
 			if(!isset($form[$key])){
 				self::Error("\$form has not been set $key attribute. ($name)");
-				$io = false;
+				$failed = true;
 			}
 		}
 
 		//	...
-		return $io;
+		return !$failed;
+	}
+
+	/** Inputs configuration test.
+	 *
+	 * @param unknown $form
+	 */
+	static function Inputs($form)
+	{
+		//	...
+		$failed = false;
+
+		//	...
+		foreach( $form['input'] ?? [] as $name => $input ){
+			//	...
+			if( gettype($name) !== 'string' ){
+				self::Error("\$form[input] is array. (not assoc)\n Ex. \$form[input][input-name] = \$input;");
+			}
+
+			//	...
+			if(!self::Input($input) ){
+				$failed = true;
+			}
+		}
+
+		//	...
+		return !$failed;
 	}
 
 	/** Input configuration test.
@@ -92,18 +112,19 @@ class Test
 	 */
 	static function Input($input)
 	{
-		$io = true;
+		//	...
+		$failed = false;
 
 		//	...
 		foreach(['type'] as $key){
 			if(!isset($input[$key])){
-				self::Error("Input config has not been set $key attribute. ($name)");
-				$io = false;
+				self::Error("Input config has not been set $key attribute. ({$input['name']})");
+				$failed = true;
 			}
 		}
 
 		//	...
-		return $io;
+		return !$failed;
 	}
 
 	/** Get/Set Error.
@@ -118,7 +139,7 @@ class Test
 		//	...
 		if( $error ){
 			//	...
-			$_error[] = $error;
+			$_error[Hasha1($error)] = $error;
 		}else{
 			//	...
 			return $_error;
