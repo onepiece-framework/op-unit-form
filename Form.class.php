@@ -515,6 +515,21 @@ class Form
 		}
 
 		//	...
+		if( isset($this->_form['input'][$name]['option']) ){
+			//	...
+			if( is_string($value) ){
+				//	...
+				foreach( $this->_form['input'][$name]['option'] as $option ){
+					//	...
+					if( $option['value'] === $value ){
+						return $value;
+					}
+				}
+				return null;
+			}
+		}
+
+		//	...
 		return $value;
 	}
 
