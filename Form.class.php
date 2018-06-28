@@ -644,6 +644,15 @@ class Form
 		echo $value;
 	}
 
+	/** Get error.
+	 *
+	 * @param string $name
+	 */
+	function GetError($name)
+	{
+		return $this->_errors[$name] ?? [];
+	}
+
 	/** Display error message.
 	 *
 	 * @param string $name
@@ -702,6 +711,129 @@ class Form
 		//	...
 		foreach( $this->_form['input'] as &$input ){
 			unset($input['value']);
+		}
+	}
+
+	/** Set input config.
+	 *
+	 * @param	 string	 $name
+	 * @param	 array	 $input
+	 */
+	function SetInput($name, $input)
+	{
+		//	...
+		if( $this->_form['input'][$name] ?? true ){
+			\Notice::Set("Has not been set this input. ($name)");
+			return;
+		}
+
+		//	...
+		foreach( $input as $key => $val ){
+			$this->_form['input'][$name][$key] = $val;
+		}
+	}
+
+	/** Set input config.
+	 *
+	 * @param	 string	 $name
+	 * @param	 array	 $option
+	 */
+	function SetOption($name, $option)
+	{
+		//	...
+		if( empty($this->_form['input'][$name]) ){
+			\Notice::Set("Has not been set this input. ($name)");
+			return;
+		}
+
+		//	...
+		$this->_form['input'][$name]['option'] = $option;
+	}
+
+	/** Validate
+	 *
+	 * <pre>
+	 * Return value
+	 *   Null is unmatch token. (Not do validation.)
+	 *   Boolean is validation result. (true is no problem.)
+	 * </pre>
+	 *
+	 * @param	 string			 $input_name
+	 * @return	 null|boolean	 $io
+	 */
+	function Validate($input_name=null)
+	{
+		//	...
+		static $_result;
+
+		//	...
+		if(!$this->Token() ){
+			return;
+		}
+
+		//	...
+		if(!\Unit::Load('validate') ){
+			return;
+		}
+
+		//	Check if validate.
+		if( $this->_errors ){
+			//	Already validation.
+		}else{
+			//	...
+			$config = $this->Config();
+			$values = $this->Values();
+
+			//	Each inputs.
+			foreach( $config['input'] as $name => $input ){
+				//	Get validation rule.
+				$rule = $input['rule'] ?? [];
+
+				//	Do validation.
+				$_result[$name] = \OP\UNIT\Validate::Evaluation($rule, $values[$name] ?? null, $this->_errors[$name], $values);
+			}
+		}
+
+		//	Individual result.
+		if( $input_name ){
+			return $_result[$input_name] ?? null;
+		}
+
+		//	Overall result
+		return (array_search(false, $_result, true) === false) ? true: false;
+	}
+
+	/** Configuration test.
+	 *
+	 */
+	function Test()
+	{
+		//	...
+		if(!\Env::isAdmin() ){
+			return false;
+		}
+
+		//	...
+		if(!$io = FORM\Test::Config($this->_form) ){
+			return FORM\Test::Error();
+		}
+
+		//	...
+		return $io;
+	}
+
+	/** For developers debug information.
+	 *
+	 * @param	 null|string	 $message
+	 */
+	function Debug($message=null)
+	{
+		static $_store = null;
+
+		if( $message ){
+			$_store[Hasha1($message)] = $message;
+		}else{
+			D($_store, $this->_errors);
 		}
 	}
 }
