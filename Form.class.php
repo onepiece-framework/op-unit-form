@@ -476,10 +476,23 @@ class Form
 
 	/** Print generated input tag.
 	 *
-	 * @param string $name
+	 * @param	 string	 $name
+	 * @param	 array	 $input
 	 */
-	function Input($name)
+	function Input($name, $input=null)
 	{
+		//	...
+		if( $this->_is_start === null ){
+			$this->_is_start  =  false;
+			D("Start method was not called.");
+		}
+
+		//	...
+		if( $input ){
+			$this->SetInput($name, $input);
+		}
+
+		//	...
 		echo $this->GetInput($name);
 	}
 
