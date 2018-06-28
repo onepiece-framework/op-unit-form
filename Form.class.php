@@ -352,47 +352,6 @@ class Form
 		return $io;
 	}
 
-	/** Request
-	 *
-	 * @param	 null|string	 $name
-	 */
-	function Request($name='')
-	{
-		static $_request = null;
-
-		//	...
-		if( $_request === null ){
-			$_request = ifset($_POST);
-		}
-
-		//	Erase cached request value.
-		if( $name === null ){
-			$_request = [];
-		}
-
-		//	...
-		return $name ? ifset($_request[$name]): $_request;
-	}
-
-	/** Configuration test.
-	 *
-	 */
-	function Test()
-	{
-		//	...
-		if(!\Env::isAdmin() ){
-			return false;
-		}
-
-		//	...
-		if(!$io = \OP\UNIT\FORM\Test::Config($this->_form) ){
-			return \OP\UNIT\FORM\Test::Error();
-		}
-
-		//	...
-		return $io;
-	}
-
 	/** Print form tag. (open)
 	 *
 	 * @param array $config
