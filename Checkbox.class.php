@@ -53,11 +53,11 @@ class Checkbox
 
 		//	...
 		$i = 1;
-		foreach($input['values'] as $values){
+		foreach($input['option'] as $option){
 			//	...
-			$label = $values['label'];
-			$value = $values['value'];
-			$check = $values['check'];
+			$label = $option['label'];
+			$value = $option['value'];
+			$check = $option['check'];
 
 			//	...
 			if( ifset($input['value']) ){

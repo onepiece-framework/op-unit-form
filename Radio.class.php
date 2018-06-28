@@ -50,11 +50,11 @@ class Radio
 		$name = $input['name'];
 
 		//	...
-		foreach($input['values'] as $values){
+		foreach($input['option'] as $option){
 			//	...
-			$label = $values['label'];
-			$value = $values['value'];
-			$check = $values['check'];
+			$label = $option['label'];
+			$value = $option['value'];
+			$check = $option['check'];
 
 			//	Overwrite checked.
 			if( isset($input['value']) ){
