@@ -47,6 +47,22 @@ class Form
 	 */
 	private $_session = [];
 
+	/** Request
+	 *
+	 */
+	private $_request = [];
+
+	/** Start method was called flag.
+	 *
+	 * @var boolean
+	 */
+	private $_is_start;
+
+	/** Is token validation.
+	 *
+	 * @var boolean
+	 */
+	private $_is_token;
 
 	/** Construct
 	 *
