@@ -312,21 +312,40 @@ class Form
 	 */
 	function Token()
 	{
-		static $io = '';
-
 		//	...
-		if( $io === '' ){
+		if(!isset($this->_is_token) ){
+			//	Initialize.
+			$this->_is_token = null;
+
 			//	Last time token.
-			$token = ifset($this->_session['token'], false);
+			$token = $this->_session['token'] ?? false;
+
+			//	Regenerate session id.
+			session_regenerate_id();
 
 			//	Regenerate new token.
-			$this->_session['token'] = Hasha1(microtime());
+		//	$this->_session['token'] = Hasha1(microtime());
+			$this->_session['token'] = random_int(1000, 9999);
 
 			//	Confirmation of request token.
 			if( $token ){
-				$io = ($token === self::Request('token'));
+				$this->_is_token = ($token == ($this->_request['token'] ?? false));
+			}
+		}
+
+		//	...
+		if( \Env::isAdmin() ){
+			//	...
+			$form_name = $this->_form['name'];
+
+			//	...
+			if( $this->_is_token === null ){
+				$this->Debug("Token has not been set yet. ($form_name)");
+			}else
+			if( $this->_is_token === false ){
+				$this->Debug("Token is unmatch. ($form_name)");
 			}else{
-				$io = null;
+				$this->Debug("Token is match. ($form_name)");
 			}
 		}
 
