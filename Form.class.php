@@ -82,42 +82,40 @@ class Form
 		}
 	}
 
-	/** Initialize
+	/** Initialize form config.
 	 *
-	 * @param  mixed $form
-	 * @throws Exception
+	 * @param	 string|array	 $form
+	 * @throws	 Exception		 $e
+	 * @return	 boolean		 $io
 	 */
-	function Init($form)
+	private function _InitForm($form)
 	{
-		static $_origin;
-
-		//	...
-		if( $form === true ){
-			$form = $_origin;
-			$this->_form = null;
-		}else{
-			$_origin = $form;
-		}
-
 		//	...
 		if( is_string($form) ){
-			if( file_exists($form) ){
-				$form = include($form);
-			}else{
+			//	...
+			if(!file_exists($form) ){
 				\Notice::Set("Does not found this file. ($form)");
+				return;
+			}
+
+			//	Load by file path.
+			try {
+				$form = include($form);
+			} catch ( \Throwable $e ){
+				\Notice::Set($e);
 				return;
 			}
 		}
 
 		//	...
 		if( $this->_form ){
-			\Notice::Set("Already initialized. {$this->_form['name']}");
+			\Notice::Set("Already initialized. ({$this->_form['name']})");
 			return;
 		}
 
 		//	...
-		if(!$form_name = ifset($form['name']) ){
-			\Notice::Set('Form name is empty. $form["name"] = "form-name";');
+		if(!$form_name = $form['name'] ?? false ){
+			\Notice::Set('Form name is empty. EX: $form["name"] = "form-name";');
 			return;
 		}
 
