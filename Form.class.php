@@ -691,12 +691,13 @@ class Form
 		$token = $this->_session['token'];
 		$this->_session = [];
 		$this->_session['token'] = $token;
+		$this->Session($this->_form['name'], $this->_session);
 
 		//	...
 		\Cookie::Set($this->_form['name'], []);
 
 		//	...
-		$this->Request(null);
+		$this->_request = null;
 
 		//	...
 		foreach( $this->_form['input'] as &$input ){
