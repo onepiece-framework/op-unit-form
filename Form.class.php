@@ -134,6 +134,172 @@ class Form
 		return true;
 	}
 
+	/** Initialize request.
+	 *
+	 */
+	private function _InitRequest()
+	{
+		$this->_request = Escape( strtolower($this->_form['method']) === 'post' ? $_POST ?? []: $_GET  ?? [] );
+	}
+
+	/** Initialize input config.
+	 *
+	 */
+	private function _InitInput()
+	{
+		//	...
+		if( empty($this->_form['input']) ){
+			$this->_form['input'] = [];
+		}
+
+		//	...
+		$form_name = $this->_form['name'];
+
+		//	Result of token authentication.
+		$token = $this->Token();
+
+		//	...
+		$cookie = \Cookie::Get($form_name, []);
+
+		//	...
+		foreach( $this->_form['input'] as $name => &$input ){
+			//	...
+			$type = strtolower($this->_form['input'][$name]['type']);
+
+			//	The value of the button will be sent only when clicked.
+			if( 'button' === $type ){
+				continue;
+			}
+
+			//	...
+			if( $type === 'select' or $type === 'radio' or $type === 'checkbox' ){
+				$this->_InitOption($input);
+			}
+
+			//	...
+			if( isset($this->_request[$name]) ){
+				$value = $this->_request[$name];
+			}else if( isset($cookie[$name]) ){
+				$value = $cookie[$name];
+			}else{
+				$value = $input['value'] ?? null;
+			}
+
+			//	The value will overwrite.
+			if( $value !== null ){
+				//	That will not be saved in the session.
+				$input['value'] = $value;
+
+				//	Save to session?
+				$is_session = ifset($input['session'], true);
+
+				//	Check token result.
+				if( $token and $is_session ){
+					//	Overwrite to session from submitted value.
+					if( $input['session'] ?? true ){
+						$this->_session[$name] = $value;
+					}
+
+					//	Save to cookie?
+					if( ifset($input['cookie']) ){
+						$cookie[$name] = $value;
+					}
+				}
+
+				//	Discard the saved session. (For developer feature)
+				if( $is_session === false ){
+					unset($this->_session[$name]);
+				}
+			}else{
+				//	That was not submitted this time. (If is transmitted at different time)
+				if( isset($this->_session[$name]) ){
+					//	Overwrite to form config from session.
+					$input['value'] = $this->_session[$name];
+				}
+			}
+		}
+
+		//	...
+		if( count($cookie) ){
+			\Cookie::Set($form_name, $cookie);
+		}
+	}
+
+	/** Init input option.
+	 *
+	 * @param	 array	&$input
+	 */
+	private function _InitOption(&$input)
+	{
+		//	In case of empty.
+		if( empty($input['option']) ){
+			$input['option'] = $input['options'] ?? $input['values'] ?? [];
+		}
+
+		//	In case of string.
+		if( is_string($input['option']) ){
+			$input['option'] = explode(',', $input['option']);
+		}
+
+		//	...
+		foreach( $input['option'] as $index => &$option ){
+			//	...
+			$check = false;
+			$value = null;
+
+			//	...
+			if( is_string($option) ){
+				if( $io = is_numeric($index) ){
+					$label = $value = $option;
+				}else{
+					$label = $option;
+					$value = $index;
+				}
+			}else{
+				$value = $option['value'];
+				$label = $option['label'];
+			}
+
+			//	...
+			$option = [];
+			$option['label'] = $label;
+			$option['value'] = $value;
+			$option['check'] = $check;
+		}
+	}
+
+	/** Get/Set form configuration.
+	 *
+	 * @param  string $form
+	 * @return array  $form
+	 */
+	function Config($form=null)
+	{
+		//	...
+		if( $form ){
+			//	...
+			if(!$this->_InitForm($form) ){
+				return;
+			}
+
+			//	...
+			$this->_InitRequest();
+
+			//	...
+			$this->_InitInput();
+
+			//	...
+			if( \Env::isAdmin() ){
+				if(!FORM\Test::Config($this->_form) ){
+					D( FORM\Test::Error() );
+				}
+			}
+		}
+
+		//	...
+		return $this->_form;
+	}
+
 	/** Return the result of token authentication.
 	 *
 	 * <pre>
