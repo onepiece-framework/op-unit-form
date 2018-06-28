@@ -560,14 +560,33 @@ class Form
 	 */
 	function Values()
 	{
-		//	...
-		$values = $this->_session;
+		//	Get saved session value.
+		$saved_session_value = $this->_session;
+
+		//	Remove token value.
+		unset($saved_session_value['token']);
+
+		//	Generate result each input name.
+		foreach( $this->Config()['input'] as $name => $input ){
+			//	If not save to session.
+			if( $input['session'] ?? true ){
+				//	Calc value.
+				$value = $saved_session_value[$name] ?? $input['value'] ?? null;
+
+				//	Set to result.
+				$result[$name] = $value;
+			}else{
+				//	Set currently sent value.
+				if( isset($this->_request[$name]) ){
+					$result[$name] = $this->_request[$name];
+					//	Do not set not sent input value.
+					//	$result[$name] = $this->_request[$name] ?? null;
+				}
+			}
+		}
 
 		//	...
-		unset($values['token']);
-
-		//	...
-		return $values;
+		return $result ?? [];
 	}
 
 	/** Display value at input name.
