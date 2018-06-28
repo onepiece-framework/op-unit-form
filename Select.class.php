@@ -39,7 +39,7 @@ class Select
 		$name = $input['name'];
 
 		//	...
-		foreach(['type','class','style'] as $key){
+		foreach(['type','class','style','onchange'] as $key){
 			if( $val = ifset($input[$key]) ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
