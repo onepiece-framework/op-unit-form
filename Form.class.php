@@ -359,6 +359,13 @@ class Form
 	function Start($config=[])
 	{
 		//	...
+		if( $this->_is_start ){
+			\Notice::Set("Form has already started. ({$this->_form['name']})");
+		}else{
+			$this->_is_start = true;
+		}
+
+		//	...
 		if(!$this->_form ){
 			throw new Exception("Has not been set configuration.");
 		}
@@ -392,6 +399,12 @@ class Form
 	 */
 	function Finish()
 	{
+		//	...
+		if( $this->_is_start === null ){
+			D("Start method was not called.");
+		}
+
+		//	...
 		print "</form>";
 	}
 
