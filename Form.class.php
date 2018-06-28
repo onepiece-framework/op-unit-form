@@ -644,9 +644,36 @@ class Form
 		echo $value;
 	}
 
-	function Error()
+	/** Display error message.
+	 *
+	 * @param string $name
+	 */
+	function Error($name, $format='<span class="error">$label is $rule error.</span>')
 	{
+		//	...
+		$config = $this->Config();
 
+		//	...
+		$format = $config['error'] ?? $format;
+
+		//	...
+		foreach( $this->GetError($name) as $rule => $var ){
+			//	...
+			if( $var === false ){
+				continue;
+			}
+
+			//	...
+			$input = $config['input'][$name];
+			$label = $input['label'] ?? $name;
+
+			//	...
+			print str_replace(
+					['$label','$Name','$name','$Rule','$rule','$value'],
+					[$label, ucfirst($name), $name, ucfirst($rule), $rule, $var],
+					isset($input['error']) ? Decode($input['error']) : $format
+					);
+		}
 	}
 
 	/** Clear saved session value.
