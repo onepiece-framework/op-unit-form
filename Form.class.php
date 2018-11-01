@@ -367,7 +367,7 @@ class Form
 
 		//	...
 		if(!$this->_form ){
-			throw new Exception("Has not been set configuration.");
+			throw new \Exception("Has not been set configuration.");
 		}
 
 		//	...
