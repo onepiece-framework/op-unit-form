@@ -496,9 +496,30 @@ class Form
 		echo $this->GetInput($name);
 	}
 
-	/** Get/Set value of input.
+	/** Set input value.
 	 *
-	 * @param string $name
+	 * @param	 string		 $name
+	 * @param	 string		 $value
+	 * @param	 boolean	 $session Overwrite to saved session value.
+	 */
+	function SetValue($name, $value, $session=true)
+	{
+		//	...
+		$this->_form['input'][$name]['value'] = $value;
+
+		//	...
+		$this->_request[$name] = $value;
+
+		//	...
+		if( $session and !empty($this->_form['input'][$name]['session']) ){
+			$this->_session[$name] = $value;
+		}
+	}
+
+	/** Get value of input.
+	 *
+	 * @param	 string		 $name
+	 * @return	 string		 $value
 	 */
 	function GetValue($name)
 	{
