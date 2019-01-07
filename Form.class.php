@@ -85,7 +85,7 @@ class Form
 	/** Initialize form config.
 	 *
 	 * @param	 string|array	 $form
-	 * @throws	 Exception		 $e
+	 * @throws	\Exception		 $e
 	 * @return	 boolean		 $io
 	 */
 	private function _InitForm($form)
@@ -249,7 +249,7 @@ class Form
 
 			//	...
 			if( is_string($option) ){
-				if( $io = is_numeric($index) ){
+				if( is_numeric($index) ){
 					$label = $value = $option;
 				}else{
 					$label = $option;
@@ -566,6 +566,9 @@ class Form
 		//	Remove token value.
 		unset($saved_session_value['token']);
 
+		//	...
+		$result = [];
+
 		//	Generate result each input name.
 		foreach( $this->Config()['input'] as $name => $input ){
 			//	If not save to session.
@@ -586,7 +589,7 @@ class Form
 		}
 
 		//	...
-		return $result ?? [];
+		return $result;
 	}
 
 	/** Display value at input name.
@@ -607,7 +610,7 @@ class Form
 		}
 
 		//	...
-		switch( $type = $input['type'] ){
+		switch( /* $type = */ $input['type'] ){
 			case 'radio':
 			case 'select':
 				foreach( $input['option'] as $option ){
