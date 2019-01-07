@@ -36,6 +36,9 @@ class Button
 	static function Build($input)
 	{
 		//	...
+		$values = [];
+
+		//	...
 		if( empty($input['values']) ){
 			$values[] = ['value'=>$input['value']];
 			$input['values'] = $values;
