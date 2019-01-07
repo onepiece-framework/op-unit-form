@@ -81,7 +81,7 @@ class Test
 
 	/** Inputs configuration test.
 	 *
-	 * @param unknown $form
+	 * @param	 array	 $form
 	 */
 	static function Inputs($form)
 	{
