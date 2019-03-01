@@ -54,11 +54,11 @@ class Radio
 			//	...
 			$label = $option['label'];
 			$value = $option['value'];
-			$check = $option['check'];
+			$check = $option['check'] ?? null;
 
 			//	Overwrite checked.
-			if( isset($input['value']) ){
-				$check = $input['value'] == $value ? true: false;
+			if(($check !== null) and isset($input['value']) ){
+				$check = ((string)$input['value'] === (string)$value) ? true: false;
 			}
 
 			//	...
