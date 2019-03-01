@@ -865,6 +865,13 @@ class Form
 		return $io;
 	}
 
+	function Help()
+	{
+		echo '<pre><code>';
+		echo file_get_contents(__DIR__.'/README.md');
+		echo '</code></pre>';
+	}
+
 	/** For developers debug information.
 	 *
 	 * @param	 null|string	 $message
