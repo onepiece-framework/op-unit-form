@@ -128,6 +128,31 @@ class Form
 		$this->_form = Escape($form);
 
 		//	...
+		if( isset($this->_form['input'][0]) ){
+			//	...
+			$inputs = $this->_form['input'];
+
+			//	...
+			unset($this->_form['input']);
+
+			//	...
+			foreach( $inputs as $name => $input ){
+				//	...
+				if( is_int($name) ){
+					$name = $input['name'] ?? null;
+				};
+
+				//	...
+				if(!$name ){
+					\Notice::Set("Has not been set input name.");
+				};
+
+				//	...
+				$this->_form['input'][$name] = $input;
+			};
+		};
+
+		//	...
 		$this->_session = $this->Session($form_name);
 
 		//	...
