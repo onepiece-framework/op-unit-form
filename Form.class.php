@@ -170,12 +170,14 @@ class Form
 	/** Initialize input config.
 	 *
 	 */
-	private function _InitInput()
+	private function _InitInput($name=null)
 	{
-		//	...
+		//	Is this nessary?
+		/*
 		if( empty($this->_form['input']) ){
 			$this->_form['input'] = [];
 		}
+		*/
 
 		//	...
 		$form_name = $this->_form['name'];
@@ -186,8 +188,19 @@ class Form
 		//	...
 		$cookie = \Cookie::Get($form_name, []);
 
+		//	Why necessary this routine?
+		if( $name === null ){
+			$names = array_keys($this->_form['input']);
+		}else{
+			$names[] = $name;
+		};
+
 		//	...
-		foreach( $this->_form['input'] as $name => &$input ){
+	//	foreach( $this->_form['input'] as $name => &$input ){
+		foreach( $names as $name ){ // Why necessary this routine?
+			//	...
+			$input = &$this->_form['input'][$name];
+
 			//	...
 			$type = strtolower($this->_form['input'][$name]['type']);
 
