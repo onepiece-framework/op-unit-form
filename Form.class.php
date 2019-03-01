@@ -757,21 +757,23 @@ class Form
 
 	/** Set input config.
 	 *
-	 * @param	 string	 $name
 	 * @param	 array	 $input
 	 */
-	function SetInput($name, $input)
+	function SetInput($input)
 	{
 		//	...
-		if( $this->_form['input'][$name] ?? true ){
-			\Notice::Set("Has not been set this input. ($name)");
+		if(!$name = $input['name'] ?? null ){
+			\Notice::Set("Has not been set input name.");
 			return;
 		}
 
-		//	...
+		//	Overwrite existing settings if there is one.
 		foreach( $input as $key => $val ){
 			$this->_form['input'][$name][$key] = $val;
 		}
+
+		//	...
+		$this->_InitInput($name);
 	}
 
 	/** Set input config.
