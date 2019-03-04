@@ -26,7 +26,7 @@ namespace OP\UNIT\FORM;
 class Checkbox
 {
 	//	...
-	use \OP_CORE;
+	use \OP\OP_CORE;
 
 	/**
 	 * Build input tag as type of checkbox.
@@ -40,7 +40,7 @@ class Checkbox
 
 		//	...
 		foreach(['class','style'] as $key){
-			if( $val = ifset($input[$key]) ){
+			if( $val = $input[$key] ?? null ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
 		}
@@ -60,7 +60,7 @@ class Checkbox
 			$check = $option['check'];
 
 			//	...
-			if( ifset($input['value']) ){
+			if( $input['value'] ?? null ){
 				$check = array_search($value, $input['value']);
 			}
 

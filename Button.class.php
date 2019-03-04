@@ -26,7 +26,7 @@ namespace OP\UNIT\FORM;
 class Button
 {
 	//	...
-	use \OP_CORE;
+	use \OP\OP_CORE;
 
 	/**
 	 * Build input tag as type of checkbox.

@@ -15,6 +15,14 @@
  */
 namespace OP\UNIT;
 
+/** Used class
+ *
+ */
+use \Exception;
+use \OP\Env;
+use \OP\Notice;
+use \OP\Cookie;
+
 /** Form
  *
  * @created   2017-01-25
@@ -23,12 +31,12 @@ namespace OP\UNIT;
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class Form
+class Form implements \OP\IF_UNIT
 {
 	/** Trait
 	 *
 	 */
-	use \OP_CORE, \OP_SESSION;
+	use \OP\OP_CORE, \OP\OP_UNIT;
 
 	/** Form configuration.
 	 *
@@ -85,7 +93,7 @@ class Form
 	/** Initialize form config.
 	 *
 	 * @param	 string|array	 $form
-	 * @throws	\Exception		 $e
+	 * @throws	 Exception		 $e
 	 * @return	 boolean		 $io
 	 */
 	private function _InitForm($form)
@@ -94,7 +102,7 @@ class Form
 		if( is_string($form) ){
 			//	...
 			if(!file_exists($form) ){
-				\Notice::Set("Does not found this file. ($form)");
+				Notice::Set("Does not found this file. ($form)");
 				return;
 			}
 
@@ -102,20 +110,20 @@ class Form
 			try {
 				$form = include($form);
 			} catch ( \Throwable $e ){
-				\Notice::Set($e);
+				Notice::Set($e);
 				return;
 			}
 		}
 
 		//	...
 		if( $this->_form ){
-			\Notice::Set("Already initialized. ({$this->_form['name']})");
+			Notice::Set("Already initialized. ({$this->_form['name']})");
 			return;
 		}
 
 		//	...
 		if(!$form_name = $form['name'] ?? false ){
-			\Notice::Set('Form name is empty. EX: $form["name"] = "form-name";');
+			Notice::Set('Form name is empty. EX: $form["name"] = "form-name";');
 			return;
 		}
 
@@ -125,9 +133,9 @@ class Form
 		}
 
 		//	...
-		$this->_form = Escape($form);
+		$this->_form = \OP\Encode($form);
 
-		//	...
+		//	Convert to associative array from numberling array.
 		if( isset($this->_form['input'][0]) ){
 			//	...
 			$inputs = $this->_form['input'];
@@ -137,6 +145,7 @@ class Form
 
 			//	...
 			foreach( $inputs as $name => $input ){
+
 				//	...
 				if( is_int($name) ){
 					$name = $input['name'] ?? null;
@@ -144,8 +153,14 @@ class Form
 
 				//	...
 				if(!$name ){
-					\Notice::Set("Has not been set input name.");
+					Notice::Set("Has not been set input name.");
 				};
+
+				//	...
+				if( $this->_form['input'][$name] ?? null ){
+					Notice::Set("This input name has already set. ($name)");
+					continue;
+				}
 
 				//	...
 				$this->_form['input'][$name] = $input;
@@ -164,7 +179,7 @@ class Form
 	 */
 	private function _InitRequest()
 	{
-		$this->_request = Escape( strtolower($this->_form['method']) === 'post' ? $_POST ?? []: $_GET  ?? [] );
+		$this->_request = \OP\Encode( strtolower($this->_form['method']) === 'post' ? $_POST ?? []: $_GET  ?? [] );
 	}
 
 	/** Initialize input config.
@@ -186,7 +201,7 @@ class Form
 		$token = $this->Token();
 
 		//	...
-		$cookie = \Cookie::Get($form_name, []);
+		$cookie = Cookie::Get($form_name, []);
 
 		//	Why necessary this routine?
 		if( $name === null ){
@@ -229,7 +244,7 @@ class Form
 				$input['value'] = $value;
 
 				//	Save to session?
-				$is_session = ifset($input['session'], true);
+				$is_session = $input['session'] ?? true;
 
 				//	Check token result.
 				if( $token and $is_session ){
@@ -239,7 +254,7 @@ class Form
 					}
 
 					//	Save to cookie?
-					if( ifset($input['cookie']) ){
+					if( $input['cookie'] ?? null ){
 						$cookie[$name] = $value;
 					}
 				}
@@ -259,7 +274,7 @@ class Form
 
 		//	...
 		if( count($cookie) ){
-			\Cookie::Set($form_name, $cookie);
+			Cookie::Set($form_name, $cookie);
 		}
 	}
 
@@ -327,7 +342,7 @@ class Form
 			$this->_InitInput();
 
 			//	...
-			if( \Env::isAdmin() ){
+			if( Env::isAdmin() ){
 				if(!FORM\Test::Config($this->_form) ){
 					D( FORM\Test::Error() );
 				}
@@ -372,7 +387,7 @@ class Form
 		}
 
 		//	...
-		if( \Env::isAdmin() ){
+		if( Env::isAdmin() ){
 			//	...
 			$form_name = $this->_form['name'];
 
@@ -399,14 +414,14 @@ class Form
 	{
 		//	...
 		if( $this->_is_start ){
-			\Notice::Set("Form has already started. ({$this->_form['name']})");
+			Notice::Set("Form has already started. ({$this->_form['name']})");
 		}else{
 			$this->_is_start = true;
 		}
 
 		//	...
 		if(!$this->_form ){
-			throw new \Exception("Has not been set configuration.");
+			throw new Exception("Has not been set configuration.");
 		}
 
 		//	...
@@ -456,7 +471,7 @@ class Form
 	{
 		//	...
 		if( empty( $this->_form['input'][$name] ) ){
-			\Notice::Set("Does not exists this name. ($name)");
+			Notice::Set("Does not exists this name. ($name)");
 			return;
 		}
 
@@ -483,7 +498,7 @@ class Form
 		try {
 			//	...
 			if( empty($this->_form['input'][$name]) ){
-				throw new \Exception("This name has not been into config. ($name)");
+				throw new Exception("This name has not been into config. ($name)");
 			}
 
 			//	...
@@ -493,7 +508,7 @@ class Form
 			$input['name'] = $name;
 
 			//	...
-			switch( $type = ucfirst(ifset($input['type'])) ){
+			switch( $type = ucfirst($input['type'] ?? '') ){
 				case 'Checkbox':
 				case 'Radio':
 				case 'Select':
@@ -508,7 +523,7 @@ class Form
 					return \OP\UNIT\FORM\Input::Build($input);
 			}
 		} catch ( \Throwable $e ) {
-			\Notice::Set($e);
+			Notice::Set($e);
 		}
 	}
 
@@ -643,7 +658,7 @@ class Form
 		$value = $this->GetValue($name);
 
 		//	...
-		if( $input['type'] === 'select' and ifset($input['multiple']) ){
+		if( $input['type'] === 'select' and ($input['multiple'] ?? null) ){
 			$input['type'] = 'multiple';
 		}
 
@@ -733,7 +748,7 @@ class Form
 	{
 		//	...
 		if(!$this->_form ){
-			\Notice::Set("Has not been set form configuration.");
+			Notice::Set("Has not been set form configuration.");
 			return;
 		}
 
@@ -744,7 +759,7 @@ class Form
 		$this->Session($this->_form['name'], $this->_session);
 
 		//	...
-		\Cookie::Set($this->_form['name'], []);
+		Cookie::Set($this->_form['name'], []);
 
 		//	...
 		$this->_request = null;
@@ -763,7 +778,7 @@ class Form
 	{
 		//	...
 		if(!$name = $input['name'] ?? null ){
-			\Notice::Set("Has not been set input name.");
+			Notice::Set("Has not been set input name.");
 			return;
 		}
 
@@ -785,7 +800,7 @@ class Form
 	{
 		//	...
 		if( empty($this->_form['input'][$name]) ){
-			\Notice::Set("Has not been set this input. ($name)");
+			Notice::Set("Has not been set this input. ($name)");
 			return;
 		}
 
@@ -815,7 +830,7 @@ class Form
 		}
 
 		//	...
-		if(!\Unit::Load('validate') ){
+		if(!\OP\Unit::Load('validate') ){
 			return;
 		}
 
@@ -830,10 +845,10 @@ class Form
 			//	Each inputs.
 			foreach( $config['input'] as $name => $input ){
 				//	Get validation rule.
-				$rule = $input['rule'] ?? [];
+				$validate = $input['validate'] ?? [];
 
 				//	Do validation.
-				$_result[$name] = \OP\UNIT\Validate::Evaluation($rule, $values[$name] ?? null, $this->_errors[$name], $values);
+				$_result[$name] = $this->Unit('validate')->Evaluation($validate, $values[$name] ?? null, $this->_errors[$name], $values);
 			}
 		}
 
@@ -852,7 +867,7 @@ class Form
 	function Test()
 	{
 		//	...
-		if(!\Env::isAdmin() ){
+		if(!Env::isAdmin() ){
 			return false;
 		}
 
@@ -878,10 +893,11 @@ class Form
 	 */
 	function Debug($message=null)
 	{
+		//	...
 		static $_store = null;
 
 		if( $message ){
-			$_store[Hasha1($message)] = $message;
+			$_store[\OP\Hasha1($message)] = $message;
 		}else{
 			D($_store, $this->_errors);
 		}

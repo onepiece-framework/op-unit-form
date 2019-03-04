@@ -26,7 +26,7 @@ namespace OP\UNIT\FORM;
 class Radio
 {
 	//	...
-	use \OP_CORE;
+	use \OP\OP_CORE;
 
 	/**
 	 * Build input tag as type of radio.
@@ -41,7 +41,7 @@ class Radio
 
 		//	...
 		foreach(['class','style'] as $key){
-			if( $val = ifset($input[$key]) ){
+			if( $val = $input[$key] ?? null ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
 		}

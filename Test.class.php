@@ -26,7 +26,7 @@ namespace OP\UNIT\FORM;
 class Test
 {
 	//	...
-	use \OP_CORE;
+	use \OP\OP_CORE;
 
 	/** Configuration test.
 	 *

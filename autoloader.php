@@ -28,8 +28,12 @@ spl_autoload_register( function($name){
 
 	//	...
 	if( file_exists($path) ){
-		include($path);
+		try{
+			include($path);
+		}catch( Throwable $e ){
+			OP\Notice::Set($e);
+		};
 	}else{
-		Notice::Set("Does not exists this file. ($path)");
-	}
+		OP\Notice::Set("Does not exists this file. ($path)");
+	};
 });

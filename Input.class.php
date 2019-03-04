@@ -26,7 +26,7 @@ namespace OP\UNIT\FORM;
 class Input
 {
 	//	...
-	use \OP_CORE;
+	use \OP\OP_CORE;
 
 	/**
 	 * Build input tag.
@@ -36,9 +36,9 @@ class Input
 	static function Build($input)
 	{
 		//	...
-		$type  = ifset($input['type']);
-		$name  = ifset($input['name']);
-		$value = ifset($input['value']);
+		$type  = $input['type']  ?? null;
+		$name  = $input['name']  ?? null;
+		$value = $input['value'] ?? null;
 
 		//	...
 		$attr = [];

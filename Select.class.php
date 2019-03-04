@@ -26,7 +26,7 @@ namespace OP\UNIT\FORM;
 class Select
 {
 	//	trait
-	use \OP_CORE;
+	use \OP\OP_CORE;
 
 	/** Build select tag.
 	 *
@@ -40,7 +40,7 @@ class Select
 
 		//	...
 		foreach(['type','class','style','onchange'] as $key){
-			if( $val = ifset($input[$key]) ){
+			if( $val = $input[$key] ?? null ){
 				$attr[] = sprintf('%s="%s"', $key, $val);
 			}
 		}
