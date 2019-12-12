@@ -2,8 +2,13 @@
 /**
  * unit-form:/Form.class.php
  *
+ * v1.0 SecureForm
+ * v2.0 onepiece-framework
+ * v3.0 Unit Gen1 2017
+ * v3.1 Unit Gen2 2018
+ *
  * @created   2017-01-25
- * @version   1.0
+ * @version   3.1
  * @package   unit-form
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
@@ -18,10 +23,16 @@ namespace OP\UNIT;
 /** Used class
  *
  */
-use \Exception;
-use \OP\Env;
-use \OP\Notice;
-use \OP\Cookie;
+use Exception;
+use OP\OP_CORE;
+use OP\OP_UNIT;
+use OP\OP_DEBUG;
+use OP\IF_UNIT;
+use OP\IF_FORM;
+use OP\Env;
+use OP\Notice;
+use OP\Cookie;
+use function OP\CompressPath;
 
 /** Form
  *
@@ -31,18 +42,18 @@ use \OP\Cookie;
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class Form implements \OP\IF_UNIT
+class Form implements IF_FORM, IF_UNIT
 {
 	/** Trait
 	 *
 	 */
-	use \OP\OP_CORE, \OP\OP_UNIT;
+	use OP_CORE, OP_UNIT, OP_DEBUG;
 
 	/** Form configuration.
 	 *
 	 * @var array
 	 */
-	private $_form = [];
+	private $_form;
 
 	/** Error of validation.
 	 *
@@ -53,12 +64,17 @@ class Form implements \OP\IF_UNIT
 	/** Session
 	 *
 	 */
-	private $_session = [];
+	private $_session;
 
 	/** Request
 	 *
 	 */
-	private $_request = [];
+	private $_request;
+
+	/** Validate
+	 *
+	 */
+	private $_validate;
 
 	/** Start method was called flag.
 	 *
@@ -72,24 +88,6 @@ class Form implements \OP\IF_UNIT
 	 */
 	private $_is_token;
 
-	/** Construct
-	 *
-	 */
-	function __construct()
-	{
-
-	}
-
-	/** Destruct
-	 *
-	 */
-	function __destruct()
-	{
-		if( $name = $this->_form['name'] ?? null ){
-			$this->Session($name, $this->_session);
-		}
-	}
-
 	/** Initialize form config.
 	 *
 	 * @param	 string|array	 $form
@@ -102,29 +100,21 @@ class Form implements \OP\IF_UNIT
 		if( is_string($form) ){
 			//	...
 			if(!file_exists($form) ){
-				Notice::Set("Does not found this file. ($form)");
-				return;
+				throw new Exception("Does not found this file. ($form)");
 			}
 
-			//	Load by file path.
-			try {
-				$form = include($form);
-			} catch ( \Throwable $e ){
-				Notice::Set($e);
-				return;
-			}
-		}
+			//	...
+			$form = include($form);
+		};
 
 		//	...
 		if( $this->_form ){
-			Notice::Set("Already initialized. ({$this->_form['name']})");
-			return;
+			throw new Exception("This form config is already initialized. (form name: {$this->_form['name']})");
 		}
 
 		//	...
 		if(!$form_name = $form['name'] ?? false ){
-			Notice::Set('Form name is empty. EX: $form["name"] = "form-name";');
-			return;
+			throw new Exception('Form name is empty. EX: $form["name"] = "form-name";');
 		}
 
 		//	...
@@ -153,13 +143,12 @@ class Form implements \OP\IF_UNIT
 
 				//	...
 				if(!$name ){
-					Notice::Set("Has not been set input name.");
+					throw new Exception("Has not been set input name.");
 				};
 
 				//	...
 				if( $this->_form['input'][$name] ?? null ){
-					Notice::Set("This input name has already set. ($name)");
-					continue;
+					throw new Exception("This input name has already set. ($name)");
 				}
 
 				//	...
@@ -168,7 +157,17 @@ class Form implements \OP\IF_UNIT
 		};
 
 		//	...
-		$this->_session = $this->Session($form_name);
+		$app_id = Env::Get(_OP_APP_ID_);
+		$class  = __CLASS__;
+		$form_name = $this->_form['name'];
+
+		//	...
+		if( empty($_SESSION['OP'][$app_id][$class][$form_name]) ){
+			$_SESSION['OP'][$app_id][$class][$form_name] = [];
+		};
+
+		//	...
+		$this->_session =& $_SESSION['OP'][$app_id][$class][$form_name];
 
 		//	...
 		return true;
@@ -187,13 +186,6 @@ class Form implements \OP\IF_UNIT
 	 */
 	private function _InitInput($name=null)
 	{
-		//	Is this nessary?
-		/*
-		if( empty($this->_form['input']) ){
-			$this->_form['input'] = [];
-		}
-		*/
-
 		//	...
 		$form_name = $this->_form['name'];
 
@@ -311,6 +303,7 @@ class Form implements \OP\IF_UNIT
 			}else{
 				$value = $option['value'];
 				$label = $option['label'];
+				$check = $option['check'] ?? $option['checked'] ?? $option['select'] ?? $option['selected'] ?? false;
 			}
 
 			//	...
@@ -331,21 +324,24 @@ class Form implements \OP\IF_UNIT
 		//	...
 		if( $form ){
 			//	...
-			if(!$this->_InitForm($form) ){
-				return;
-			}
+			try {
+				//	...
+				$this->_InitForm($form);
 
-			//	...
-			$this->_InitRequest();
+				//	...
+				$this->_InitRequest();
 
-			//	...
-			$this->_InitInput();
+				//	...
+				$this->_InitInput();
 
-			//	...
-			if( Env::isAdmin() ){
-				if(!FORM\Test::Config($this->_form) ){
-					D( FORM\Test::Error() );
+				//	...
+				if( Env::isAdmin() ){
+					if(!FORM\Test::Config($this->_form) ){
+						D( FORM\Test::Error() );
+					}
 				}
+			} catch ( \Throwable $e ){
+				Notice::Set($e);
 			}
 		}
 
@@ -361,45 +357,37 @@ class Form implements \OP\IF_UNIT
 	 *   boolean: Token match result.
 	 * </pre>
 	 *
-	 * @return boolean
+	 * @see    \OP\IF_FORM
+	 * @return  boolean
 	 */
 	function Token()
 	{
 		//	...
-		if(!isset($this->_is_token) ){
-			//	Initialize.
-			$this->_is_token = null;
-
-			//	Last time token.
-			$token = $this->_session['token'] ?? false;
+		if( $this->_is_token === null ){
 
 			//	Regenerate session id.
+			/*
 			session_regenerate_id();
+			*/
+
+			//	Last time token.
+			$token = $this->_session['token'] ?? null;
 
 			//	Regenerate new token.
-		//	$this->_session['token'] = Hasha1(microtime());
 			$this->_session['token'] = random_int(1000, 9999);
 
 			//	Confirmation of request token.
 			if( $token ){
-				$this->_is_token = ($token == ($this->_request['token'] ?? false));
-			}
-		}
-
-		//	...
-		if( Env::isAdmin() ){
-			//	...
-			$form_name = $this->_form['name'];
+				$this->_is_token = ($token == ($this->_request['token'] ?? null));
+			};
 
 			//	...
-			if( $this->_is_token === null ){
-				$this->Debug("Token has not been set yet. ($form_name)");
-			}else
-			if( $this->_is_token === false ){
-				$this->Debug("Token is unmatch. ($form_name)");
-			}else{
-				$this->Debug("Token is match. ($form_name)");
-			}
+			if( Env::isAdmin() ){
+				//	...
+				$token_session = $token;
+				$token_request = $this->_request['token'] ?? 'null';
+				$this->__DebugSet(__FUNCTION__, "{$token_session}, {$token_request}");
+			};
 		}
 
 		//	...
@@ -505,7 +493,9 @@ class Form implements \OP\IF_UNIT
 			$input = $this->_form['input'][$name];
 
 			//	...
-			$input['name'] = $name;
+			if( empty($input['name']) ){
+				$input['name'] = $name;
+			};
 
 			//	...
 			switch( $type = ucfirst($input['type'] ?? '') ){
@@ -543,10 +533,9 @@ class Form implements \OP\IF_UNIT
 		//	...
 		if( $input ){
 			$this->SetInput($name, $input);
-		}
-
-		//	...
-		echo $this->GetInput($name);
+		}else{
+			echo $this->GetInput($name);
+		};
 	}
 
 	/** Set input value.
@@ -557,16 +546,22 @@ class Form implements \OP\IF_UNIT
 	 */
 	function SetValue($name, $value, $session=true)
 	{
-		//	...
+		//	Config
 		$this->_form['input'][$name]['value'] = $value;
 
-		//	...
+		//	Request
 		$this->_request[$name] = $value;
 
-		//	...
+		//	Session
 		if( $session and !empty($this->_form['input'][$name]['session']) ){
 			$this->_session[$name] = $value;
 		}
+
+		//	Cookie
+		$form_name = $this->_form['name'];
+		$cookie = Cookie::Get($form_name, null);
+		unset($cookie[$name]);
+		Cookie::Set($form_name, $cookie);
 	}
 
 	/** Get value of input.
@@ -595,7 +590,7 @@ class Form implements \OP\IF_UNIT
 				//	...
 				foreach( $this->_form['input'][$name]['option'] as $option ){
 					//	...
-					if( $option['value'] === $value ){
+					if( $value === (string)$option['value'] ){
 						return $value;
 					}
 				}
@@ -734,17 +729,17 @@ class Form implements \OP\IF_UNIT
 
 			//	...
 			print str_replace(
-					['$label','$Name','$name','$Rule','$rule','$value'],
-					[$label, ucfirst($name), $name, ucfirst($rule), $rule, $var],
-					isset($input['error']) ? Decode($input['error']) : $format
-					);
-		}
+				['$label','$Name','$name','$Rule','$rule','$value'],
+				[$label, ucfirst($name), $name, ucfirst($rule), $rule, $var],
+				isset($input['error']) ? Decode($input['error']) : $format
+			);
+		};
 	}
 
 	/** Clear saved session value.
 	 *
 	 */
-	function Clear()
+	function Clear($input_name='')
 	{
 		//	...
 		if(!$this->_form ){
@@ -796,16 +791,19 @@ class Form implements \OP\IF_UNIT
 	 * @param	 string	 $name
 	 * @param	 array	 $option
 	 */
-	function SetOption($name, $option)
+	function SetOption($input_name, $option)
 	{
 		//	...
-		if( empty($this->_form['input'][$name]) ){
-			Notice::Set("Has not been set this input. ($name)");
+		if( empty($this->_form['input'][$input_name]) ){
+			Notice::Set("Has not been set this input. ($input_name)");
 			return;
 		}
 
 		//	...
-		$this->_form['input'][$name]['option'] = $option;
+		$this->_form['input'][$input_name]['option'] = $option;
+
+		//	...
+		$this->_InitOption($this->_form['input'][$input_name]);
 	}
 
 	/** Validate
@@ -822,43 +820,57 @@ class Form implements \OP\IF_UNIT
 	function Validate($input_name=null)
 	{
 		//	...
-		static $_result;
+		if(!$this->_validate ){
+			//	...
+			if(!\OP\Unit::Load('validate') ){
+				return;
+			}
 
+			//	Check if validate.
+			if( $this->_errors ){
+				//	Already validation.
+			}else{
+				//	...
+				$config = $this->Config();
+				$values = $this->Values();
+
+				//	Each inputs.
+				foreach( $config['input'] as $name => $input ){
+
+					//	...
+					$validate = $input['validate'] ?? $input['rule'] ?? null;
+
+					//	Get validation rule.
+					if(!$validate ){
+						continue;
+					};
+
+					//	Do validation.
+					$this->_validate[$name] = $this->Unit('validate')->Evaluation($validate, $values[$name] ?? null, $this->_errors[$name], $values);
+				};
+			};
+		};
+
+		//	...
+		return $input_name ? ($this->_validate[$input_name] ?? null): $this->_validate;
+	}
+
+	/** Validation result.
+	 *
+	 * @see \OP\IF_FORM::isValidate()
+	 */
+	function isValidate():bool
+	{
 		//	...
 		if(!$this->Token() ){
-			return;
-		}
+			return false;
+		};
 
 		//	...
-		if(!\OP\Unit::Load('validate') ){
-			return;
-		}
+		$validate = $this->Validate() ?? [];
 
-		//	Check if validate.
-		if( $this->_errors ){
-			//	Already validation.
-		}else{
-			//	...
-			$config = $this->Config();
-			$values = $this->Values();
-
-			//	Each inputs.
-			foreach( $config['input'] as $name => $input ){
-				//	Get validation rule.
-				$validate = $input['validate'] ?? [];
-
-				//	Do validation.
-				$_result[$name] = $this->Unit('validate')->Evaluation($validate, $values[$name] ?? null, $this->_errors[$name], $values);
-			}
-		}
-
-		//	Individual result.
-		if( $input_name ){
-			return $_result[$input_name] ?? null;
-		}
-
-		//	Overall result
-		return (array_search(false, $_result, true) === false) ? true: false;
+		//	...
+		return (array_search(false, $validate, true) === false) ? true: false;
 	}
 
 	/** Configuration test.
@@ -880,26 +892,19 @@ class Form implements \OP\IF_UNIT
 		return $io;
 	}
 
-	function Help()
-	{
-		echo '<pre><code>';
-		echo file_get_contents(__DIR__.'/README.md');
-		echo '</code></pre>';
-	}
-
-	/** For developers debug information.
+	/** Pre debug method.
 	 *
-	 * @param	 null|string	 $message
+	 * @param  string  $topic
 	 */
-	function Debug($message=null)
+	private function _PreDebug($topic=null)
 	{
 		//	...
-		static $_store = null;
+		$form_name = $this->_form['name'];
 
-		if( $message ){
-			$_store[\OP\Hasha1($message)] = $message;
-		}else{
-			D($_store, $this->_errors);
-		}
+		//	...
+		$this->_debug['config']  = $this->_form['input'][$topic] ?? $this->_form;
+		$this->_debug['request'] = $this->_request[$topic]       ?? $this->_request;
+		$this->_debug['session'] = $this->_session[$topic]       ?? $this->_session;
+		$this->_debug['cookie']  = Cookie::Get($form_name, null);
 	}
 }
