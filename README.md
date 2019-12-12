@@ -1,9 +1,105 @@
 The Unit of Form of onepiece-framework
 ===
 
-## How to use
+## Usage
 
-```form.php
+### Config
+
+#### text
+
+ text is single line text.
+
+```php
+<?php
+$input = [];
+$input['name']   = 'text';
+$input['type']   = 'text';
+$input['label']  = 'Single line text';
+$input['value']  = 'default value';
+$form['input'][] = $input;
+```
+
+#### textarea
+
+ textarea is multi line text.
+
+```php
+<?php
+$input = [];
+$input['name']   = 'textarea';
+$input['type']   = 'textarea';
+$input['label']  = 'Multi line text';
+$input['value']  = 'default value';
+$form['input'][] = $input;
+```
+
+#### select
+
+ select is popup menu.
+
+```php
+<?php
+$input = [];
+$input['name']   = 'select';
+$input['type']   = 'select';
+$input['label']  = 'Choose OS';
+$input['value']  = 'win';
+$input['option'] = [
+  Mac, Win, Unix
+];
+$form['input'][] = $input;
+```
+
+#### radio
+
+ radio is single choose.
+
+```php
+<?php
+$input = [];
+$input['name']   = 'radio';
+$input['type']   = 'radio';
+$input['label']  = 'Choose OS';
+$input['value']  = 'win';
+$input['option'] = [
+  'mac'  => 'Mac', 
+  'win'  => 'Win', 
+  'unix' => 'Unix'
+];
+$form['input'][] = $input;
+```
+
+#### checkbox
+
+ checkbox is multi choose.
+
+```php
+<?php
+$input = [];
+$input['name']   = 'checkbox';
+$input['type']   = 'checkbox';
+$input['label']  = 'Choose OS';
+$input['option'] = [
+  ['label' => 'Mac', 'value' => 'mac'],
+  ['label' => 'Win', 'value' => 'win', 'checked' => true],
+  ['label' => 'Unix','value' => 'unix'],
+];
+$form['input'][] = $input;
+```
+
+### Instantiate
+
+```php
+# Core usage
+$form = Unit::Instance('Form');
+
+# Unit usage
+$app->Unit('Form')->Config('config.php');
+```
+
+### Standard
+
+```php
 <?php
 //	Instantiate.
 $form = Unit::Instance('Form');
