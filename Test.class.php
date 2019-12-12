@@ -124,6 +124,12 @@ class Test
 		}
 
 		//	...
+		if( $input['name'] === 'submit' ){
+			self::Error("Avoid to \"submit\" at input name. (type={$input['type']}, name={$input['name']})");
+			$failed = true;
+		};
+
+		//	...
 		return !$failed;
 	}
 
@@ -139,7 +145,7 @@ class Test
 		//	...
 		if( $error ){
 			//	...
-			$_error[Hasha1($error)] = $error;
+			$_error[\OP\Hasha1($error)] = $error;
 		}else{
 			//	...
 			return $_error;
