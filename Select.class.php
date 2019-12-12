@@ -65,9 +65,9 @@ class Select
 		//	...
 		foreach( $input['option'] ?? [] as $option ){
 			//	...
-			if( $option['value'] === null ){
-				$option['value']  =  '';
-			}
+			if( is_string($option) ){
+				$option = ['value'=>$option];
+			};
 
 			//	...
 			$value = $option['value'] ?? $option;
