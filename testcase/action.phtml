@@ -1,0 +1,58 @@
+<?php
+/**
+ * module-testcase:/unit/form/action.phtml
+ *
+ * @creation  2019-03-01
+ * @version   1.0
+ * @package   module-testcase
+ * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
+ * @copyright Tomoaki Nagahara All right reserved.
+ */
+
+/** namespace
+ *
+ * @creation  2019-03-01
+ */
+namespace OP;
+
+/* @var $app    \OP\UNIT\App  */
+/* @var $form   \OP\UNIT\Form */
+
+//	...
+$form = $app->Unit('Form');
+
+//	...
+$form->Config(__DIR__.'/config.inc.php');
+
+//	...
+$validate = $form->Validate();
+$validate['isValidate'] = $form->isValidate();
+$validate['token']      = $form->Token();
+?>
+<section class="breadcrumb-navigation">
+[
+	<?php foreach( ['text','password','textarea','select','radio','checkbox','multiple','agree'] as $key ): ?>
+	<span><a href="<?= $key ?>"><?= $key ?></a></span>
+	<?php endforeach; ?>
+]
+</section>
+<section>
+	<?php $form->Start() ?>
+	<table>
+		<?php foreach( $form->Config()['input'] as $input ): ?>
+		<tr>
+			<th><?php $form->Label($input['name']) ?></th>
+			<td><?php $form->Input($input['name']) ?></td>
+			<td><?php $form->Value($input['name']) ?></td>
+			<td><?php $form->Error($input['name']) ?></td>
+		</tr>
+		<?php endforeach; ?>
+	</table>
+	<?php $form->Finish() ?>
+</section>
+<?php
+//	...
+D($validate);
+
+//	...
+$form->Debug();
