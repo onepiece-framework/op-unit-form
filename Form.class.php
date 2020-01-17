@@ -89,6 +89,28 @@ class Form implements IF_FORM, IF_UNIT
 	 */
 	private $_is_token;
 
+	/** Construct
+	 *
+	 */
+	function __construct()
+	{
+		/*
+		//	Recovery session is do _InitForm().
+		$this->_session = $this->Session($form_name);
+		*/
+	}
+
+	/** Destruct
+	 *
+	 */
+	function __destruct()
+	{
+		//	Save to session.
+		if( $name = $this->_form['name'] ?? null ){
+			$this->Session($name, $this->_session);
+		}
+	}
+
 	/** Initialize form config.
 	 *
 	 * @param	 string|array	 $form
@@ -157,6 +179,7 @@ class Form implements IF_FORM, IF_UNIT
 			};
 		};
 
+		/*
 		//	...
 		$app_id = Env::Get(_OP_APP_ID_);
 		$class  = __CLASS__;
@@ -169,6 +192,10 @@ class Form implements IF_FORM, IF_UNIT
 
 		//	...
 		$this->_session =& $_SESSION['OP'][$app_id][$class][$form_name];
+		*/
+
+		//	Recovery saved session value.
+		$this->_session = $this->Session($form_name);
 
 		//	...
 		return true;
