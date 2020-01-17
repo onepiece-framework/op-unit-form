@@ -409,12 +409,16 @@ class Form implements IF_FORM, IF_UNIT
 				$this->_is_token = ($token == ($this->_request['token'] ?? null));
 			};
 
-			//	...
+			//	For developers.
 			if( Env::isAdmin() ){
+				/*
 				//	...
 				$token_session = $token;
 				$token_request = $this->_request['token'] ?? 'null';
 				$this->__DebugSet(__FUNCTION__, "{$token_session}, {$token_request}");
+				*/
+				require_once(__DIR__.'/function/token_debug.php');
+				FORM\token_debug($this);
 			};
 		}
 
