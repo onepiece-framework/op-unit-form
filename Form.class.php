@@ -396,7 +396,9 @@ class Form implements IF_FORM, IF_UNIT
 	function Token()
 	{
 		//	...
-		if( $this->_is_token === null ){
+		if(!isset($this->_is_token) ){
+			//	Initialize.
+			$this->_is_token = null;
 
 			//	Last time token.
 			$token = $this->_session['token'] ?? null;
@@ -407,7 +409,7 @@ class Form implements IF_FORM, IF_UNIT
 
 			//	Confirmation of request token.
 			if( $token ){
-				$this->_is_token = ($token == ($this->_request['token'] ?? null));
+				$this->_is_token = ($token == ($this->_request['token'] ?? false));
 			};
 
 			//	For developers.
