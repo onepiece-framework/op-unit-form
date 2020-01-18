@@ -402,6 +402,7 @@ class Form implements IF_FORM, IF_UNIT
 			$token = $this->_session['token'] ?? null;
 
 			//	Regenerate new token.
+		//	$this->_session['token'] = Hasha1(microtime());
 			$this->_session['token'] = random_int(1000, 9999);
 
 			//	Confirmation of request token.
