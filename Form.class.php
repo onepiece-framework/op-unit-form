@@ -197,6 +197,11 @@ class Form implements IF_FORM, IF_UNIT
 		//	Recovery saved session value.
 		$this->_session = $this->Session($form_name);
 
+		//	Regenerate session id.
+		/*
+		session_regenerate_id();
+		*/
+
 		//	...
 		return true;
 	}
@@ -392,11 +397,6 @@ class Form implements IF_FORM, IF_UNIT
 	{
 		//	...
 		if( $this->_is_token === null ){
-
-			//	Regenerate session id.
-			/*
-			session_regenerate_id();
-			*/
 
 			//	Last time token.
 			$token = $this->_session['token'] ?? null;
