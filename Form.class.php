@@ -761,12 +761,13 @@ class Form implements IF_FORM, IF_UNIT
 			//	...
 			$input = $config['input'][$name];
 			$label = $input['label'] ?? $name;
+			$error = $input['errors'][$rule] ?? $input['error'] ?? $format;
 
 			//	...
 			print str_replace(
 				['$label','$Name','$name','$Rule','$rule','$value'],
 				[$label, ucfirst($name), $name, ucfirst($rule), $rule, $var],
-				isset($input['error']) ? Decode($input['error']) : $format
+				$error
 			);
 		};
 	}
