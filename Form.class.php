@@ -242,7 +242,7 @@ class Form implements IF_FORM, IF_UNIT
 			$input = &$this->_form['input'][$name];
 
 			//	...
-			$type = strtolower($this->_form['input'][$name]['type']);
+			$type = strtolower($this->_form['input'][$name]['type'] ?? null);
 
 			//	The value of the button will be sent only when clicked.
 			if( 'button' === $type ){
@@ -420,8 +420,10 @@ class Form implements IF_FORM, IF_UNIT
 				$token_request = $this->_request['token'] ?? 'null';
 				$this->__DebugSet(__FUNCTION__, "{$token_session}, {$token_request}");
 				*/
+				/*
 				require_once(__DIR__.'/function/token_debug.php');
 				FORM\token_debug($this);
+				*/
 			};
 		}
 
