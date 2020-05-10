@@ -896,12 +896,13 @@ class Form implements IF_FORM, IF_UNIT
 	/** Validation result.
 	 *
 	 * @see \OP\IF_FORM::isValidate()
+	 * @return null|boolean
 	 */
-	function isValidate():bool
+	function isValidate()
 	{
 		//	...
 		if(!$this->Token() ){
-			return false;
+			return null;
 		};
 
 		//	...
