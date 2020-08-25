@@ -254,12 +254,18 @@ class Form implements IF_FORM, IF_UNIT
 				$this->_InitOption($input);
 			}
 
-			//	...
+			//	Calc value.
 			if( isset($this->_request[$name]) ){
+				//	request
 				$value = $this->_request[$name];
+			}else if( isset($this->_session[$name]) ){
+				//	session
+				$value = $this->_session[$name];
 			}else if( isset($cookie[$name]) ){
+				//	cookie
 				$value = $cookie[$name];
 			}else{
+				//	default
 				$value = $input['value'] ?? null;
 			}
 
@@ -272,7 +278,7 @@ class Form implements IF_FORM, IF_UNIT
 				$is_session = $input['session'] ?? true;
 
 				//	Check token result.
-				if( $token and $is_session ){
+				if( $token ){
 					//	Overwrite to session from submitted value.
 					if( $input['session'] ?? true ){
 						$this->_session[$name] = $value;
@@ -282,6 +288,8 @@ class Form implements IF_FORM, IF_UNIT
 					if( $input['cookie'] ?? null ){
 						$cookie[$name] = $value;
 					}
+				}else{
+					//	...
 				}
 
 				//	Discard the saved session. (For developer feature)
