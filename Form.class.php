@@ -941,6 +941,7 @@ class Form implements IF_FORM, IF_UNIT
 
 	/** Pre debug method.
 	 *
+	 * @deprecated 2020-08-25
 	 * @param  string  $topic
 	 */
 	private function _PreDebug($topic=null)
