@@ -1,10 +1,9 @@
 <?php
-/**
- * module-testcase:/unit/form/config.inc.php
+/** op-unit-form:/testcase/config.inc.php
  *
- * @creation  2019-03-01
+ * @created   2019-03-01
  * @version   1.0
- * @package   module-testcase
+ * @package   op-unit-form
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
