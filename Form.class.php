@@ -515,7 +515,7 @@ class Form implements IF_FORM, IF_UNIT
 	 */
 	function Label($name)
 	{
-		echo $this->GetLabel($name);
+		echo ucfirst($this->GetLabel($name));
 	}
 
 	/** Generate input tag.
