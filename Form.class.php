@@ -959,4 +959,14 @@ class Form implements IF_FORM, IF_UNIT
 		$this->_debug['session'] = $this->_session[$topic]       ?? $this->_session;
 		$this->_debug['cookie']  = Cookie::Get($form_name, null);
 	}
+
+	/** Display table layout.
+	 *
+	 */
+	function __toString()
+	{
+		ob_start();
+		include(__DIR__.'/include/toString.php');
+		return ob_get_clean();
+	}
 }
