@@ -146,6 +146,11 @@ class Form implements IF_FORM, IF_UNIT
 		}
 
 		//	...
+		if(!isset($form['class'])){
+			$form['class'] = 'OP';
+		}
+
+		//	...
 		$this->_form = \OP\Encode($form);
 
 		//	Convert to associative array from numberling array.
