@@ -740,11 +740,18 @@ class Form implements IF_FORM, IF_UNIT
 	/** Display error message.
 	 *
 	 * @param string $name
+	 * @param string $format
 	 */
 	function Error($name, $format='<span class="error">$label is $rule error.</span>')
 	{
 		//	...
 		$config = $this->Config();
+
+		//	...
+		if(!isset($this->_validate) ){
+			\OP\Notice("Form::Validate() is not execute.");
+			return;
+		}
 
 		//	...
 		$format = $config['error'] ?? $format;
@@ -861,6 +868,9 @@ class Form implements IF_FORM, IF_UNIT
 		//	...
 		if(!$this->_validate ){
 			//	...
+			$this->_validate = [];
+
+			//	...
 			if(!\OP\Unit::Load('validate') ){
 				return;
 			}
@@ -903,6 +913,7 @@ class Form implements IF_FORM, IF_UNIT
 	{
 		//	...
 		if(!$this->Token() ){
+			$this->_validate = [];
 			return null;
 		};
 
