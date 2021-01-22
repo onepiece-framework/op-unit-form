@@ -506,12 +506,6 @@ class Form implements IF_FORM, IF_UNIT
 	function GetLabel($name)
 	{
 		//	...
-		if( empty( $this->_form['input'][$name] ) ){
-			Notice::Set("Does not exists this name. ($name)");
-			return;
-		}
-
-		//	...
 		return $this->_form['input'][$name]['label'] ?? $name;
 	}
 
