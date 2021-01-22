@@ -737,15 +737,6 @@ class Form implements IF_FORM, IF_UNIT
 		echo $value;
 	}
 
-	/** Get error.
-	 *
-	 * @param string $name
-	 */
-	function GetError($name)
-	{
-		return $this->_errors[$name] ?? [];
-	}
-
 	/** Display error message.
 	 *
 	 * @param string $name
@@ -759,7 +750,7 @@ class Form implements IF_FORM, IF_UNIT
 		$format = $config['error'] ?? $format;
 
 		//	...
-		foreach( $this->GetError($name) as $rule => $var ){
+		foreach(($this->_errors[$name] ?? [] ) as $rule => $var ){
 			//	...
 			if( $var === false ){
 				continue;
