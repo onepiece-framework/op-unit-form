@@ -246,6 +246,11 @@ class Form implements IF_FORM, IF_UNIT
 			//	...
 			$input = &$this->_form['input'][$name];
 
+			//	Save original value. Use for Recovery original value at Clear() method.
+			if( isset($input['value']) ){
+				$input['original'] = $input['value'];
+			}
+
 			//	...
 			$type = strtolower($this->_form['input'][$name]['type'] ?? null);
 
@@ -782,6 +787,7 @@ class Form implements IF_FORM, IF_UNIT
 
 	/** Clear saved session value.
 	 *
+	 * @param string $input_name
 	 */
 	function Clear($input_name='')
 	{
@@ -792,6 +798,7 @@ class Form implements IF_FORM, IF_UNIT
 		}
 
 		//	...
+		$config= $this->Config();
 		$token = $this->_session['token'];
 		$this->_session = [];
 		$this->_session['token'] = $token;
@@ -805,7 +812,10 @@ class Form implements IF_FORM, IF_UNIT
 
 		//	...
 		foreach( $this->_form['input'] as &$input ){
+			/*
 			unset($input['value']);
+			*/
+			$input['value'] = $config['input'][$input['name']]['original'] ?? null;
 		}
 	}
 
