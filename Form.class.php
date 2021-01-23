@@ -765,7 +765,7 @@ class Form implements IF_FORM, IF_UNIT
 
 			//	...
 			$input = $config['input'][$name];
-			$label = $input['label'] ?? $name;
+			$label = $input['label'] ?? ucfirst($name);
 			$error = $input['errors'][$rule] ?? $input['error'] ?? $format;
 
 			//	...
