@@ -791,6 +791,21 @@ class Form implements IF_FORM, IF_UNIT
 
 		//	...
 		$config= $this->Config();
+		if( $input_name ){
+			//	...
+			$input = &$this->_form['input'][$input_name];
+
+			//	...
+			if( $input['cookie'] ?? null ){
+				$cookie = Cookie::Get($this->_form['name']);
+				unset($cookie[$input_name]);
+				Cookie::Set($this->_form['name'], $cookie);
+			}
+			$this->_session[$input_name] = null;
+			$input['value'] = $input['original'] ?? null;
+			return;
+		}
+
 		$token = $this->_session['token'];
 		$this->_session = [];
 		$this->_session['token'] = $token;
