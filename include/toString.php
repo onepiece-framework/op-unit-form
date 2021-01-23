@@ -17,17 +17,23 @@ $this->Start();
 //	...
 echo '<div class="table">';
 foreach( $this->Config()['input'] as $name => $input ){
+	//	...
+	$type = $input['type'] ?? null;
+
+	//	...
 	echo '<div class="tr">';
 	echo '<div class="th">';
-	if( $input['type'] === 'button' or $input['type'] === 'submit' ){
-		//	...
+	if( $type === 'button' or $type === 'submit' ){
+		//	Do nothing.
 	}else{
 		$this->Label($name);
 	}
 	echo '</div>';
 	echo '<div class="td">';
 	$this->Input($name); echo ' ';
+	echo '<span class="error">';
 	$this->Error($name);
+	echo '</span>';
 	echo '</div>';
 	echo '</div>';
 }
