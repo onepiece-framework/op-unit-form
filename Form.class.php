@@ -820,9 +820,13 @@ class Form implements IF_FORM, IF_UNIT
 			return;
 		}
 
+		//	Save token value.
 		$token = $this->_session['token'];
+		//	Saved session is clear.
 		$this->_session = [];
+		//	Recovery token value.
 		$this->_session['token'] = $token;
+		//	Set empty value.
 		$this->Session($this->_form['name'], $this->_session);
 
 		//	...
