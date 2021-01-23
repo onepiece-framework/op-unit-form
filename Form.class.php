@@ -793,7 +793,6 @@ class Form implements IF_FORM, IF_UNIT
 		}
 
 		//	...
-		$config= $this->Config();
 		if( $input_name ){
 			//	...
 			if(!isset($this->_form['input'][$input_name]) ){
@@ -842,7 +841,7 @@ class Form implements IF_FORM, IF_UNIT
 			/*
 			unset($input['value']);
 			*/
-			$input['value'] = $config['input'][$input['name']]['original'] ?? null;
+			$input['value'] = $input['original'] ?? null;
 		}
 	}
 
