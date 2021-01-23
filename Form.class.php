@@ -793,6 +793,12 @@ class Form implements IF_FORM, IF_UNIT
 		$config= $this->Config();
 		if( $input_name ){
 			//	...
+			if(!isset($this->_form['input'][$input_name]) ){
+				\OP\Notice("This input name does not exists. ($input_name)");
+				return;
+			}
+
+			//	...
 			$input = &$this->_form['input'][$input_name];
 
 			//	...
