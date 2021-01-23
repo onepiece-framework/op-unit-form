@@ -532,6 +532,9 @@ class Form implements IF_FORM, IF_UNIT
 			}
 
 			//	...
+			$this->_form['input'][$name]['echo'] = true;
+
+			//	...
 			$input = $this->_form['input'][$name];
 
 			//	...
@@ -802,6 +805,12 @@ class Form implements IF_FORM, IF_UNIT
 			$input = &$this->_form['input'][$input_name];
 
 			//	...
+			if( $input['echo'] ?? null ){
+				\OP\Notice("This input already displayed. ($input_name)");
+				return;
+			}
+
+			//	...
 			if( $input['cookie'] ?? null ){
 				$cookie = Cookie::Get($this->_form['name']);
 				unset($cookie[$input_name]);
@@ -825,6 +834,11 @@ class Form implements IF_FORM, IF_UNIT
 
 		//	...
 		foreach( $this->_form['input'] as &$input ){
+			//	...
+			if( $input['echo'] ?? null ){
+				\OP\Notice("This input already displayed. ($input_name)");
+				continue;
+			}
 			/*
 			unset($input['value']);
 			*/
