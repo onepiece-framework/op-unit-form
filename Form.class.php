@@ -742,7 +742,7 @@ class Form implements IF_FORM, IF_UNIT
 	 * @param string $name
 	 * @param string $format
 	 */
-	function Error($name, $format='<span class="error">$label is $rule error.</span>')
+	function Error($name, $format='$label is "$rule" error.')
 	{
 		//	...
 		$config = $this->Config();
