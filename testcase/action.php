@@ -13,6 +13,12 @@
  */
 declare(strict_types=1);
 
+/** namespace
+ *
+ * @created    2024-03-09
+ */
+namespace OP\UNIT\FORM;
+
 /* @var $app    \OP\UNIT\App  */
 
 //	...
