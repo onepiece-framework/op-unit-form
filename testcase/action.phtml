@@ -34,7 +34,7 @@ $validate['token']      = $form->Token();
 </section>
 <section>
 	<?php $form->Start() ?>
-	<table>
+	<table id="op-unit-form">
 		<?php foreach( $form->Config()['input'] as $input ): ?>
 		<tr>
 			<th><?php $form->Label($input['name']) ?></th>
@@ -46,6 +46,13 @@ $validate['token']      = $form->Token();
 	</table>
 	<?php $form->Finish() ?>
 </section>
+<style>
+#op-unit-form th,
+#op-unit-form td {
+	_border: 1px solid white;
+	padding-right: 0.5rem;
+}
+</style>
 <?php
 //	...
 D($validate);
