@@ -20,16 +20,7 @@ declare(strict_types=1);
  */
 namespace OP\UNIT\FORM;
 
-/* @var $app    \OP\UNIT\App  */
-/* @var $form   \OP\UNIT\Form */
-
-//	...
-$form = $app->Unit('Form');
-
-//	...
-$form->Config(__DIR__.'/config.inc.php');
-
-//	...
+/* @var  $form  \OP\UNIT\Form */
 $validate = $form->Validate();
 $validate['isValidate'] = $form->isValidate();
 $validate['token']      = $form->Token();
