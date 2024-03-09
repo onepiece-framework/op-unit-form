@@ -7,6 +7,12 @@
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
+
+/** Declare strict
+ *
+ */
+declare(strict_types=1);
+
 /* @var $app    \OP\UNIT\App  */
 
 //	...
