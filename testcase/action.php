@@ -19,15 +19,13 @@ declare(strict_types=1);
  */
 namespace OP\UNIT\FORM;
 
-/* @var $app    \OP\UNIT\App  */
-
-//	...
-if(!$form = $app->Unit('Form') ){
+/* @var $form \OP\UNIT\Form  */
+if(!$form = OP()->Unit('Form') ){
 	return;
 };
 
 //	...
-$form->Config(__DIR__.'/config.inc.php');
+$form->Config('config.inc.php');
 
 //	...
-include(__DIR__.'/action.phtml');
+include('action.phtml');
