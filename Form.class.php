@@ -848,7 +848,12 @@ class Form implements IF_FORM, IF_UNIT
 	 */
 	function Validate($input_name=null)
 	{
-		//	...
+		//	If token is not valid, not work validate.
+		if(!self::Token() ){
+			return null;
+		}
+
+		//	Validate is only one times.
 		if(!$this->_validate ){
 			//	...
 			$this->_validate = [];
