@@ -950,9 +950,16 @@ class Form implements IF_FORM, IF_UNIT
 
 	/** Display table layout.
 	 *
+	 * @deprecated  2024-03-09  self::Display('form_name')
 	 */
 	function __toString()
 	{
+		//	This logic so not work singleton.
+		if( _OP_APP_BRANCH_ > 2023 ){
+			OP()->Notice('__toString is deprecated. Automatically display form is use self::Display("form_name")');
+		}
+
+		//	...
 		ob_start();
 		include(__DIR__.'/include/toString.php');
 		return ob_get_clean();
