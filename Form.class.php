@@ -252,7 +252,7 @@ class Form implements IF_FORM, IF_UNIT
 			}
 
 			//	...
-			$type = strtolower($this->_form['input'][$name]['type'] ?? null);
+			$type = strtolower($this->_form['input'][$name]['type'] ?? '');
 
 			//	The value of the button will be sent only when clicked.
 			if( 'button' === $type ){
