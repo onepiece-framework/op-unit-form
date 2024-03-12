@@ -730,7 +730,7 @@ class Form implements IF_FORM, IF_UNIT
 				break;
 
 			case 'textarea':
-				$value = nl2br($value);
+				$value = $value ? nl2br($value): '';
 				break;
 
 			default:
